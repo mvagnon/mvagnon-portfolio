@@ -1,10 +1,15 @@
+"use client";
+
+/* eslint-disable react-hooks/immutability, react-hooks/refs -- Three.js scene objects are mutated through the R3F frame loop. */
+
+import Image from 'next/image';
 import type React from 'react';
 import { useRef, useMemo, useCallback, useState, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
-type ImageItem = string | { src: string; alt?: string };
+export type ImageItem = string | { src: string; alt?: string };
 
 interface FadeSettings {
 	fadeIn: {
@@ -29,7 +34,7 @@ interface BlurSettings {
 	maxBlur: number;
 }
 
-interface InfiniteGalleryProps {
+export interface InfiniteGalleryProps {
 	images: ImageItem[];
 	speed?: number;
 	zSpacing?: number;
@@ -49,9 +54,35 @@ interface PlaneData {
 	y: number; 
 }
 
+type TextureImage = {
+	width: number;
+	height: number;
+};
+
 const DEFAULT_DEPTH_RANGE = 50;
 const MAX_HORIZONTAL_OFFSET = 8;
 const MAX_VERTICAL_OFFSET = 8;
+
+function getTextureAspect(texture: THREE.Texture) {
+	const image = texture.image;
+
+	if (isTextureImage(image) && image.height > 0) {
+		return image.width / image.height;
+	}
+
+	return 1;
+}
+
+function isTextureImage(image: unknown): image is TextureImage {
+	return (
+		typeof image === 'object' &&
+		image !== null &&
+		'width' in image &&
+		'height' in image &&
+		typeof image.width === 'number' &&
+		typeof image.height === 'number'
+	);
+}
 
 const createClothMaterial = () => {
 	return new THREE.ShaderMaterial({
@@ -191,6 +222,7 @@ function ImagePlane({
 function GalleryScene({
 	images,
 	speed = 1,
+	zSpacing,
 	visibleCount = 8,
 	fadeSettings = {
 		fadeIn: { start: 0.05, end: 0.15 },
@@ -204,7 +236,7 @@ function GalleryScene({
 }: Omit<InfiniteGalleryProps, 'className' | 'style'>) {
 	const [scrollVelocity, setScrollVelocity] = useState(0);
 	const [autoPlay, setAutoPlay] = useState(true);
-	const lastInteraction = useRef(Date.now());
+	const lastInteraction = useRef(0);
 
 	const normalizedImages = useMemo(
 		() =>
@@ -248,7 +280,9 @@ function GalleryScene({
 	}, [visibleCount]);
 
 	const totalImages = normalizedImages.length;
-	const depthRange = DEFAULT_DEPTH_RANGE;
+	const depthRange = zSpacing
+		? Math.max(zSpacing * visibleCount, 1)
+		: DEFAULT_DEPTH_RANGE;
 
 	// Initialize plane data
 	const planesData = useRef<PlaneData[]>(
@@ -346,7 +380,6 @@ function GalleryScene({
 		const imageAdvance =
 			totalImages > 0 ? visibleCount % totalImages || totalImages : 0;
 		const totalRange = depthRange;
-		const halfRange = totalRange / 2;
 
 		planesData.current.forEach((plane, i) => {
 			let newZ = plane.z + scrollVelocity * delta * 10;
@@ -374,8 +407,6 @@ function GalleryScene({
 			plane.z = ((newZ % totalRange) + totalRange) % totalRange;
 			plane.x = spatialPositions[i]?.x ?? 0;
 			plane.y = spatialPositions[i]?.y ?? 0;
-
-			const worldZ = plane.z - halfRange;
 
 			// Calculate opacity based on fade settings
 			const normalizedPosition = plane.z / totalRange; // 0 to 1
@@ -464,9 +495,7 @@ function GalleryScene({
 				const worldZ = plane.z - depthRange / 2;
 
 				// Calculate scale to maintain aspect ratio
-				const aspect = texture.image
-					? texture.image.width / texture.image.height
-					: 1;
+				const aspect = getTextureAspect(texture);
 				const scale: [number, number, number] =
 					aspect > 1 ? [2 * aspect, 2, 1] : [2, 2 / aspect, 1];
 
@@ -501,12 +530,15 @@ function FallbackGallery({ images }: { images: ImageItem[] }) {
 			</p>
 			<div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
 				{normalizedImages.map((img, i) => (
-					<img
-						key={i}
-						src={img.src || '/placeholder.svg'}
-						alt={img.alt}
-						className="w-full h-32 object-cover rounded"
-					/>
+					<div key={i} className="relative h-32 w-full overflow-hidden rounded">
+						<Image
+							src={img.src}
+							alt={img.alt ?? ''}
+							fill
+							sizes="(min-width: 768px) 33vw, 50vw"
+							className="object-cover"
+						/>
+					</div>
 				))}
 			</div>
 		</div>
@@ -515,6 +547,9 @@ function FallbackGallery({ images }: { images: ImageItem[] }) {
 
 export default function InfiniteGallery({
 	images,
+	speed,
+	zSpacing,
+	visibleCount,
 	className = 'h-96 w-full',
 	style,
 	fadeSettings = {
@@ -527,21 +562,20 @@ export default function InfiniteGallery({
 		maxBlur: 8.0,
 	},
 }: InfiniteGalleryProps) {
-	const [webglSupported, setWebglSupported] = useState(true);
+	const [webglSupported] = useState(() => {
+		if (typeof document === 'undefined') {
+			return true;
+		}
 
-	useEffect(() => {
-		// Check WebGL support
 		try {
 			const canvas = document.createElement('canvas');
 			const gl =
 				canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-			if (!gl) {
-				setWebglSupported(false);
-			}
-		} catch (e) {
-			setWebglSupported(false);
+			return Boolean(gl);
+		} catch {
+			return false;
 		}
-	}, []);
+	});
 
 	if (!webglSupported) {
 		return (
@@ -559,6 +593,9 @@ export default function InfiniteGallery({
 			>
 				<GalleryScene
 					images={images}
+					speed={speed}
+					zSpacing={zSpacing}
+					visibleCount={visibleCount}
 					fadeSettings={fadeSettings}
 					blurSettings={blurSettings}
 				/>
