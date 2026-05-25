@@ -3,6 +3,13 @@ import { describe, expect, test } from "bun:test";
 import keystaticConfig from "@/keystatic.config.ts";
 
 describe("keystatic config", () => {
+  test("uses the Keystatic Cloud project", () => {
+    expect(keystaticConfig.storage.kind).toBe("cloud");
+    expect(keystaticConfig.cloud.project).toBe(
+      "matthieu-vagnon/mvagnon-portfolio",
+    );
+  });
+
   test("exposes the projects collection and profile singleton", () => {
     expect(Object.keys(keystaticConfig.collections)).toEqual(["projects"]);
     expect(Object.keys(keystaticConfig.singletons)).toEqual(["profile"]);

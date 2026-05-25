@@ -8,7 +8,10 @@ function getRandomProjectColor() {
 
 export default config({
   storage: {
-    kind: "local",
+    kind: "cloud",
+  },
+  cloud: {
+    project: "matthieu-vagnon/mvagnon-portfolio",
   },
   collections: {
     projects: collection({

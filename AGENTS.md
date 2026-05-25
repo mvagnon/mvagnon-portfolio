@@ -9,7 +9,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Stack
 
 - This is a Bun-based Next.js portfolio using the App Router.
-- Content is managed with Keystatic in local storage.
+- Content is managed with Keystatic Cloud.
 - Styling uses Tailwind CSS v4, shadcn/ui configuration, CSS variables in `app/globals.css`, and lucide icons.
 - Interactive visual components may use Motion, Three.js, `@react-three/fiber`, and `@react-three/drei`.
 
@@ -38,6 +38,7 @@ Do not run dev servers, containers, or browser automation by default. Run lint, 
 ## Keystatic
 
 - Keystatic config lives in `keystatic.config.ts`.
+- The Keystatic Cloud project is `matthieu-vagnon/mvagnon-portfolio`.
 - The admin UI is mounted under `app/keystatic`.
 - The Keystatic route handler lives at `app/api/keystatic/[...params]/route.ts`.
 - Project content uses the `projects` collection:

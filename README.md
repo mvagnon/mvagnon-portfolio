@@ -1,6 +1,6 @@
 # mvagnon-portfolio
 
-Next.js portfolio managed with Keystatic local storage.
+Next.js portfolio managed with Keystatic Cloud.
 
 ## Commands
 
@@ -16,6 +16,8 @@ Tests live in `tests/`.
 ## Content
 
 Keystatic is available at `/keystatic`.
+
+The Keystatic Cloud project is `matthieu-vagnon/mvagnon-portfolio`.
 
 Projects are configured in the `projects` collection. Each project uses the title as its slug, stores content in `content/projects/*`, and stores uploaded images in `public/images/projects`.
 
