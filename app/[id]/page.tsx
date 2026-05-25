@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
@@ -41,6 +42,22 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     notFound();
   }
 
+  const projectLinks = [
+    {
+      href: project.url,
+      icon: "/url.svg",
+      label: "Voir le projet en production",
+    },
+    {
+      href: project.github,
+      icon: "/github.svg",
+      label: "Voir le code source sur GitHub",
+    },
+  ].filter(
+    (link): link is { href: string; icon: string; label: string } =>
+      typeof link.href === "string",
+  );
+
   return (
     <main
       className="relative min-h-screen h-full w-full overflow-hidden bg-zinc-950 text-white"
@@ -73,9 +90,40 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       </header>
 
       <div className="pointer-events-none fixed inset-0 z-10 flex items-center justify-center px-3 text-center text-white mix-blend-exclusion">
-        <h1 className="max-w-5xl text-balance break-words text-4xl italic tracking-normal md:text-7xl">
-          {project.title}
-        </h1>
+        <div className="flex max-w-5xl flex-col items-center gap-5">
+          <h1 className="text-balance break-words text-4xl italic tracking-normal md:text-7xl">
+            {project.title}
+          </h1>
+
+          {projectLinks.length > 0 ? (
+            <nav
+              aria-label="Liens du projet"
+              className="flex items-center justify-center gap-3"
+            >
+              {projectLinks.map((link) => (
+                <IconButton
+                  key={link.href}
+                  href={link.href}
+                  aria-label={link.label}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pointer-events-auto group border-0 bg-black/25"
+                >
+                  <Image
+                    src={link.icon}
+                    alt=""
+                    width={22}
+                    height={22}
+                    unoptimized
+                    aria-hidden="true"
+                    draggable={false}
+                    className="size-5.5 invert transition group-hover:invert-0"
+                  />
+                </IconButton>
+              ))}
+            </nav>
+          ) : null}
+        </div>
       </div>
     </main>
   );
