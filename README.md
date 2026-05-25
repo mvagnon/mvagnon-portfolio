@@ -21,7 +21,7 @@ The Keystatic Cloud project is `matthieu-vagnon/mvagnon-portfolio`.
 
 Projects are configured in the `projects` collection. Each project uses the title as its slug, stores content in `content/projects/*`, and stores uploaded images in `public/images/projects`.
 
-Project entries include a required cover image for the `/` hover preview, a required image gallery, and optional `github` and `url` links. Project background colors are generated from the project position returned by the collection reader.
+Project entries include a required creation datetime, a required cover image for the `/` hover preview, a required image gallery, and optional `github` and `url` links. Projects are sorted by creation datetime in descending order, and background colors are generated from that sorted position.
 
 The project gallery field accepts multiple image uploads at once and stores them in `public/images/projects/<project-slug>/images`.
 

@@ -12,7 +12,10 @@ describe("keystatic config", () => {
 
   test("exposes the projects collection and profile singleton", () => {
     expect(Object.keys(keystaticConfig.collections)).toEqual(["projects"]);
-    expect(keystaticConfig.collections.projects.columns).toEqual(["title"]);
+    expect(keystaticConfig.collections.projects.columns).toEqual([
+      "title",
+      "createdAt",
+    ]);
     expect(Object.keys(keystaticConfig.singletons)).toEqual(["profile"]);
     expect(keystaticConfig.singletons.profile.path).toBe(
       "content/profile/matthieu-vagnon",
@@ -22,6 +25,17 @@ describe("keystatic config", () => {
       "description",
       "links",
     ]);
+  });
+
+  test("requires a project creation datetime", () => {
+    const createdAtField =
+      keystaticConfig.collections.projects.schema.createdAt;
+
+    expect(createdAtField.kind).toBe("form");
+    expect(createdAtField.label).toBe("Created at");
+    expect(createdAtField.defaultValue()).toMatch(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,
+    );
   });
 
   test("accepts legacy project order metadata without exposing it", () => {

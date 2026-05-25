@@ -1,48 +1,77 @@
 import { describe, expect, test } from "bun:test";
 
-import { getProjects } from "@/lib/projects.ts";
+import {
+  compareProjectEntries,
+  toProject,
+} from "@/lib/projects.ts";
 
-describe("getProjects", () => {
-  test("returns configured projects with ids, cover images, links, and images", async () => {
-    const projects = await getProjects();
+const baseProjectEntry = {
+  coverImage: {
+    src: "/images/projects/example/cover.png",
+    alt: "Example cover",
+  },
+  images: [
+    {
+      src: "/images/projects/example/images/0.png",
+      alt: "Example 1",
+    },
+  ],
+};
 
-    expect(projects).toContainEqual({
-      id: "mvagnon-agents",
-      title: "mvagnon/agents",
+describe("project transforms", () => {
+  test("sorts project entries by creation datetime descending", () => {
+    const projects = [
+      {
+        ...baseProjectEntry,
+        id: "older",
+        title: "Older",
+        createdAt: "2026-05-23T09:00",
+      },
+      {
+        ...baseProjectEntry,
+        id: "newer",
+        title: "Newer",
+        createdAt: "2026-05-25T09:00",
+      },
+      {
+        ...baseProjectEntry,
+        id: "middle",
+        title: "Middle",
+        createdAt: "2026-05-24T09:00",
+      },
+    ].toSorted(compareProjectEntries);
+
+    expect(projects.map((project) => project.id)).toEqual([
+      "newer",
+      "middle",
+      "older",
+    ]);
+  });
+
+  test("assigns deterministic colors from sorted position", () => {
+    expect(toProject(baseProjectEntryWithId("first"), 0)).toMatchObject({
+      id: "first",
       order: 1,
       color: "#000000",
-      coverImage: {
-        src: "/images/projects/mvagnon-agents/coverImage.jpeg",
-        alt: "mvagnon/agents cover",
-      },
-      github: "https://github.com/mvagnon/agents",
-      url: undefined,
-      images: [
-        {
-          src: "/images/projects/mvagnon-agents/images/0.png",
-          alt: "mvagnon/agents 1",
-        },
-      ],
+    });
+    expect(toProject(baseProjectEntryWithId("second"), 1)).toMatchObject({
+      id: "second",
+      order: 2,
+      color: "#1F150C",
+    });
+    expect(toProject(baseProjectEntryWithId("fifth"), 4)).toMatchObject({
+      id: "fifth",
+      order: 5,
+      color: "#000000",
     });
   });
-
-  test("uses collection position as project order and color index", async () => {
-    const projects = await getProjects();
-
-    expect(projects.map((project) => project.order)).toEqual([1, 2, 3]);
-    expect(projects.map((project) => project.id)).toEqual([
-      "mvagnon-agents",
-      "ubby",
-      "personal-dashboard",
-    ]);
-    expect(projects.map((project) => project.color)).toEqual([
-      "#000000",
-      "#1F150C",
-      "#412D15",
-    ]);
-
-    for (let index = 1; index < projects.length; index += 1) {
-      expect(projects[index]?.color).not.toBe(projects[index - 1]?.color);
-    }
-  });
 });
+
+function baseProjectEntryWithId(id) {
+  return {
+    ...baseProjectEntry,
+    id,
+    title: id,
+    createdAt: "2026-05-25T09:00",
+  };
+}

@@ -71,4 +71,5 @@ Do not run dev servers, containers, or browser automation by default. Run lint, 
 
 - Use `bun test` for `bun:test` files.
 - Keep route tests aligned with actual `app/` route placement when routes move.
+- Do not test exact Keystatic content values. Content files are editable CMS data, not stable fixtures. Test schemas, readers with synthetic data, and transformation logic instead.
 - Update `README.md` when setup, commands, routes, content schema, or architecture changes.

@@ -14,9 +14,16 @@ export default config({
       label: "Projects",
       slugField: "title",
       path: "content/projects/*",
-      columns: ["title"],
+      columns: ["title", "createdAt"],
       schema: {
         title: fields.slug({ name: { label: "Title" } }),
+        createdAt: fields.datetime({
+          label: "Created at",
+          defaultValue: { kind: "now" },
+          validation: {
+            isRequired: true,
+          },
+        }),
         order: fields.ignored(),
         color: fields.ignored(),
         coverImage: fields.image({

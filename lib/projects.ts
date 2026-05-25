@@ -11,6 +11,7 @@ const projectColors = ["#000000", "#1F150C", "#412D15", "#E1DCC9"] as const;
 export type Project = {
   id: string;
   title: string;
+  createdAt: string;
   order: number;
   color: string;
   coverImage: ImageItem;
@@ -25,28 +26,25 @@ export async function getProjectIds() {
 
 export async function getProjects(): Promise<Project[]> {
   const projectIds = await getProjectIds();
-  const projects = await Promise.all(
-    projectIds.map((id, index) => readProject(id, index + 1)),
+  const projectEntries = await Promise.all(
+    projectIds.map((id) => readProjectEntry(id)),
   );
 
-  return projects.filter(isProject);
+  return projectEntries
+    .filter(isProjectEntry)
+    .toSorted(compareProjectEntries)
+    .map(toProject);
 }
 
 export async function getProject(id: string): Promise<Project | null> {
-  const projectIds = await getProjectIds();
-  const projectIndex = projectIds.indexOf(id);
+  const projects = await getProjects();
 
-  if (projectIndex === -1) {
-    return null;
-  }
-
-  return readProject(id, projectIndex + 1);
+  return projects.find((project) => project.id === id) ?? null;
 }
 
-async function readProject(
-  id: string,
-  collectionPosition: number,
-): Promise<Project | null> {
+export type ProjectEntry = Omit<Project, "color" | "order">;
+
+async function readProjectEntry(id: string): Promise<ProjectEntry | null> {
   const project = await reader.collections.projects.read(id);
 
   if (!project) {
@@ -56,8 +54,7 @@ async function readProject(
   return {
     id,
     title: project.title,
-    order: collectionPosition,
-    color: getProjectColor(collectionPosition),
+    createdAt: project.createdAt,
     coverImage: {
       src: project.coverImage,
       alt: `${project.title} cover`,
@@ -73,6 +70,23 @@ async function readProject(
   };
 }
 
+export function toProject(project: ProjectEntry, index: number): Project {
+  const order = index + 1;
+
+  return {
+    ...project,
+    order,
+    color: getProjectColor(order),
+  };
+}
+
+export function compareProjectEntries(a: ProjectEntry, b: ProjectEntry) {
+  return (
+    b.createdAt.localeCompare(a.createdAt) ||
+    a.title.localeCompare(b.title, "fr", { sensitivity: "base" })
+  );
+}
+
 function getProjectColor(order: number) {
   return projectColors[(order - 1) % projectColors.length];
 }
@@ -85,6 +99,8 @@ function isImagePath(image: string | null): image is string {
   return typeof image === "string" && image.length > 0;
 }
 
-function isProject(project: Project | null): project is Project {
+function isProjectEntry(
+  project: ProjectEntry | null,
+): project is ProjectEntry {
   return project !== null;
 }
