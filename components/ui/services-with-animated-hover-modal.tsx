@@ -108,6 +108,7 @@ function ProjectRow({
   return (
     <Link
       href={`/${project.id}`}
+      transitionTypes={["nav-forward"]}
       className="group flex w-full items-center justify-between gap-5 border-t border-zinc-300 py-8 transition-opacity duration-200 last:border-b hover:opacity-55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950/70 md:py-11 lg:px-12"
       onMouseEnter={() => setModal({ active: true, index })}
       onMouseLeave={() => setModal({ active: false, index })}

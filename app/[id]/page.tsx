@@ -64,6 +64,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       <header className="pointer-events-none fixed inset-x-0 top-0 z-10 flex justify-start px-5 py-6 sm:px-8 sm:py-8 lg:px-12">
         <Link
           href="/"
+          transitionTypes={["nav-back"]}
           aria-label="Retour a l'accueil"
           className="pointer-events-auto flex size-10 items-center justify-center rounded-full border border-white/15 bg-black/25 text-white backdrop-blur transition hover:bg-white hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
         >
