@@ -65,5 +65,37 @@ export default config({
         ),
       },
     }),
+    profileLinks: collection({
+      label: "Profile links",
+      slugField: "title",
+      path: "content/profile-links/*",
+      columns: ["title", "url"],
+      schema: {
+        title: fields.slug({ name: { label: "Title" } }),
+        order: fields.integer({
+          label: "Display order",
+          defaultValue: 1,
+          validation: {
+            isRequired: true,
+            min: 1,
+          },
+        }),
+        url: fields.url({
+          label: "URL",
+          validation: {
+            isRequired: true,
+          },
+        }),
+        icon: fields.select({
+          label: "Icon",
+          description: "Use Link until dedicated platform icons are available.",
+          options: [
+            { label: "GitHub", value: "github" },
+            { label: "Link", value: "link" },
+          ],
+          defaultValue: "link",
+        }),
+      },
+    }),
   },
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, LinkIcon } from "lucide-react";
 import { motion, useMotionValue, useSpring } from "motion/react";
 import type { Variants } from "motion/react";
 import Image from "next/image";
@@ -8,13 +8,16 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import type { ProfileLink } from "@/lib/profile-links";
 import type { Project } from "@/lib/projects";
+import { IconButton } from "@/components/ui/icon-button";
 import { ViewHoverCursor } from "@/components/ui/view-hover-cursor";
 
 type ServicesProject = Pick<Project, "color" | "coverImage" | "id" | "title">;
 
 type ServicesWithAnimatedHoverModalProps = {
   projects: ServicesProject[];
+  socialLinks?: ProfileLink[];
   className?: string;
 };
 
@@ -45,6 +48,7 @@ const scaleAnimation: Variants = {
 
 export function ServicesWithAnimatedHoverModal({
   projects,
+  socialLinks = [],
   className,
 }: ServicesWithAnimatedHoverModalProps) {
   const [modal, setModal] = useState<ModalState>({
@@ -64,10 +68,17 @@ export function ServicesWithAnimatedHoverModal({
           <h1 className="text-6xl italic tracking-normal text-balance md:text-8xl">
             Projects.
           </h1>
-          <p className="max-w-md text-sm leading-6 font-medium text-zinc-500 md:pt-4 md:text-base">
-            Une selection de projets, experiences visuelles et interfaces
-            concues pour explorer une direction graphique claire.
-          </p>
+
+          <div className="flex max-w-md flex-col gap-4 md:items-end md:pt-4">
+            <p className="text-sm leading-6 font-medium text-zinc-500 md:text-right md:text-base">
+              Une selection de projets, experiences visuelles et interfaces
+              concues pour explorer une direction graphique claire.
+            </p>
+
+            {socialLinks.length > 0 ? (
+              <ProfileLinksNav profileLinks={socialLinks} />
+            ) : null}
+          </div>
         </div>
 
         {projects.length > 0 ? (
@@ -93,6 +104,44 @@ export function ServicesWithAnimatedHoverModal({
       </div>
     </section>
   );
+}
+
+function ProfileLinksNav({ profileLinks }: { profileLinks: ProfileLink[] }) {
+  return (
+    <nav aria-label="Liens du profil" className="flex items-center gap-3">
+      {profileLinks.map((profileLink) => (
+        <IconButton
+          key={profileLink.id}
+          href={profileLink.url}
+          aria-label={`Ouvrir ${profileLink.title}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group border-zinc-300 bg-white text-zinc-950 shadow-sm hover:bg-zinc-950 hover:text-white focus-visible:ring-zinc-950/70"
+        >
+          <ProfileLinkIcon icon={profileLink.icon} />
+        </IconButton>
+      ))}
+    </nav>
+  );
+}
+
+function ProfileLinkIcon({ icon }: { icon: ProfileLink["icon"] }) {
+  if (icon === "github") {
+    return (
+      <Image
+        src="/github.svg"
+        alt=""
+        width={22}
+        height={22}
+        unoptimized
+        aria-hidden="true"
+        draggable={false}
+        className="size-5.5 transition group-hover:invert"
+      />
+    );
+  }
+
+  return <LinkIcon className="size-4.5" aria-hidden="true" />;
 }
 
 function ProjectRow({

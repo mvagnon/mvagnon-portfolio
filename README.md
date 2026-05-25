@@ -18,4 +18,6 @@ Projects are configured in the `projects` collection. Each project uses the titl
 
 Project entries include a generated color, a required cover image for the `/` hover preview, a required image gallery, and optional `github` and `url` links.
 
-The project index is available at `/` and renders the animated hover list. Project detail pages are available at `/:id` and render the project title with its images in the 3D gallery.
+Profile links are configured in the `profileLinks` collection. Entries live in `content/profile-links/*` and control the icon buttons rendered on `/`.
+
+The project index is available at `/` and renders the animated hover list with profile links. Project detail pages are available at `/:id` and render the project title with its images in the 3D gallery.
