@@ -159,10 +159,10 @@ function HoverModal({
   const pointerY = useMotionValue(0);
   const previewX = useSpring(pointerX, { damping: 28, stiffness: 140 });
   const previewY = useSpring(pointerY, { damping: 28, stiffness: 140 });
-  const cursorX = useSpring(pointerX, { damping: 26, stiffness: 220 });
-  const cursorY = useSpring(pointerY, { damping: 26, stiffness: 220 });
-  const labelX = useSpring(pointerX, { damping: 24, stiffness: 260 });
-  const labelY = useSpring(pointerY, { damping: 24, stiffness: 260 });
+  const cursorX = useSpring(pointerX, { damping: 30, stiffness: 190 });
+  const cursorY = useSpring(pointerY, { damping: 30, stiffness: 190 });
+  const labelX = useSpring(pointerX, { damping: 30, stiffness: 205 });
+  const labelY = useSpring(pointerY, { damping: 30, stiffness: 205 });
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
