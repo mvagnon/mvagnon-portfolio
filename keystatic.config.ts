@@ -14,9 +14,16 @@ export default config({
       label: "Projects",
       slugField: "title",
       path: "content/projects/*",
-      columns: ["title", "createdAt"],
+      columns: ["title", "client", "createdAt"],
+      sortBy: {
+        field: "createdAt",
+        direction: "descending",
+      },
       schema: {
         title: fields.slug({ name: { label: "Title" } }),
+        client: fields.text({
+          label: "Client",
+        }),
         createdAt: fields.datetime({
           label: "Created at",
           defaultValue: { kind: "now" },

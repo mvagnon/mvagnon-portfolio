@@ -93,6 +93,14 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <div className="flex max-w-5xl flex-col items-center gap-5">
           <h1 className="text-balance break-words text-4xl italic tracking-normal md:text-7xl">
             {project.title}
+            {project.client ? (
+              <>
+                {" "}
+                <span aria-hidden="true">&bull;</span>
+                {" "}
+                <span>{project.client}</span>
+              </>
+            ) : null}
           </h1>
 
           {projectLinks.length > 0 ? (

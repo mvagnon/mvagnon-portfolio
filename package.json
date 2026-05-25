@@ -45,5 +45,8 @@
   "trustedDependencies": [
     "sharp",
     "unrs-resolver"
-  ]
+  ],
+  "patchedDependencies": {
+    "@keystatic/core@0.5.50": "patches/@keystatic%2Fcore@0.5.50.patch"
+  }
 }

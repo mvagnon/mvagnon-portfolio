@@ -1,0 +1,36 @@
+diff --git a/dist/declarations/src/config.d.ts b/dist/declarations/src/config.d.ts
+index cd5057dbbc0ef2e81ba0734ada85c549247a197f..ed4b8e1b3f06cb57cbd43df269c98a7c496c78ef 100644
+--- a/dist/declarations/src/config.d.ts
++++ b/dist/declarations/src/config.d.ts
+@@ -19,6 +19,10 @@ export type Collection<Schema extends Record<string, ComponentSchema>, SlugField
+     columns?: string[];
+     template?: string;
+     parseSlugForSort?: (slug: string) => string | number;
++    sortBy?: {
++        field: string;
++        direction: 'ascending' | 'descending';
++    };
+     slugField: SlugField;
+     schema: Schema;
+ };
+diff --git a/dist/keystatic-core-ui.js b/dist/keystatic-core-ui.js
+index 24d47136e7317bab8f460a8eab537a5bbd0072c0..f66a6699df2542993b19d1be3c42c2fc13690563 100644
+--- a/dist/keystatic-core-ui.js
++++ b/dist/keystatic-core-ui.js
+@@ -1019,13 +1019,13 @@ function CollectionTable(props) {
+   const currentBranch = useCurrentBranch();
+   let isLocalMode = isLocalConfig(props.config);
+   let router = useRouter();
++  const collection = props.config.collections[props.collection];
+   let [sortDescriptor, setSortDescriptor] = useState({
+-    column: SLUG,
+-    direction: 'ascending'
++    column: collection.sortBy?.field ?? SLUG,
++    direction: collection.sortBy?.direction ?? 'ascending'
+   });
+   let hideStatusColumn = isLocalMode || currentBranch === (repoInfo === null || repoInfo === void 0 ? void 0 : repoInfo.defaultBranch);
+   const baseCommit = useBaseCommit();
+-  const collection = props.config.collections[props.collection];
+   const entriesWithStatus = useMemo(() => {
+     const defaultEntries = new Map(getEntriesInCollectionWithTreeKey(props.config, props.collection, props.trees.default.tree).map(x => [x.slug, x.key]));
+     return getEntriesInCollectionWithTreeKey(props.config, props.collection, props.trees.current.tree).map(entry => {

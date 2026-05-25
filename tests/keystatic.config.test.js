@@ -14,6 +14,7 @@ describe("keystatic config", () => {
     expect(Object.keys(keystaticConfig.collections)).toEqual(["projects"]);
     expect(keystaticConfig.collections.projects.columns).toEqual([
       "title",
+      "client",
       "createdAt",
     ]);
     expect(Object.keys(keystaticConfig.singletons)).toEqual(["profile"]);
@@ -27,6 +28,16 @@ describe("keystatic config", () => {
     ]);
   });
 
+  test("exposes an optional project client field after the title", () => {
+    expect(Object.keys(keystaticConfig.collections.projects.schema).slice(0, 3))
+      .toEqual(["title", "client", "createdAt"]);
+
+    const clientField = keystaticConfig.collections.projects.schema.client;
+
+    expect(clientField.kind).toBe("form");
+    expect(clientField.label).toBe("Client");
+  });
+
   test("requires a project creation datetime", () => {
     const createdAtField =
       keystaticConfig.collections.projects.schema.createdAt;
@@ -36,6 +47,13 @@ describe("keystatic config", () => {
     expect(createdAtField.defaultValue()).toMatch(
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,
     );
+  });
+
+  test("sorts projects by creation datetime descending by default", () => {
+    expect(keystaticConfig.collections.projects.sortBy).toEqual({
+      field: "createdAt",
+      direction: "descending",
+    });
   });
 
   test("accepts legacy project order metadata without exposing it", () => {

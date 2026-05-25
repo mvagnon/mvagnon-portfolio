@@ -11,6 +11,7 @@ const projectColors = ["#000000", "#1F150C", "#412D15", "#E1DCC9"] as const;
 export type Project = {
   id: string;
   title: string;
+  client?: string;
   createdAt: string;
   order: number;
   color: string;
@@ -54,6 +55,7 @@ async function readProjectEntry(id: string): Promise<ProjectEntry | null> {
   return {
     id,
     title: project.title,
+    client: normalizeOptionalText(project.client),
     createdAt: project.createdAt,
     coverImage: {
       src: project.coverImage,
@@ -93,6 +95,12 @@ function getProjectColor(order: number) {
 
 function normalizeOptionalUrl(url: string | null): string | undefined {
   return typeof url === "string" && url.length > 0 ? url : undefined;
+}
+
+function normalizeOptionalText(text: string | null): string | undefined {
+  const value = typeof text === "string" ? text.trim() : "";
+
+  return value.length > 0 ? value : undefined;
 }
 
 function isImagePath(image: string | null): image is string {
