@@ -17,9 +17,9 @@ type ElementLike = {
 };
 
 describe("ProjectPage", () => {
-  test("renders production and GitHub links under the title", async () => {
+  test("renders configured project links under the title", async () => {
     const page = await ProjectPage({
-      params: Promise.resolve({ id: "test-project" }),
+      params: Promise.resolve({ id: "mvagnon-agents" }),
     });
 
     const projectLinks = findElements(
@@ -40,15 +40,8 @@ describe("ProjectPage", () => {
     }));
 
     expect(projectLinks).toContainEqual({
-      ariaLabel: "Voir le projet en production",
-      href: "https://test-project.example.com",
-      icon: "/url.svg",
-      rel: "noopener noreferrer",
-      target: "_blank",
-    });
-    expect(projectLinks).toContainEqual({
       ariaLabel: "Voir le code source sur GitHub",
-      href: "https://github.com/mvagnon/test-project",
+      href: "https://github.com/mvagnon/agents",
       icon: "/github.svg",
       rel: "noopener noreferrer",
       target: "_blank",

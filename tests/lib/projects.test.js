@@ -7,27 +7,19 @@ describe("getProjects", () => {
     const projects = await getProjects();
 
     expect(projects).toContainEqual({
-      id: "test-project",
-      title: "Test project",
+      id: "mvagnon-agents",
+      title: "mvagnon/agents",
       color: "#412D15",
       coverImage: {
-        src: "/images/projects/test-project/coverImage.png",
-        alt: "Test project cover",
+        src: "/images/projects/mvagnon-agents/coverImage.jpeg",
+        alt: "mvagnon/agents cover",
       },
-      github: "https://github.com/mvagnon/test-project",
-      url: "https://test-project.example.com",
+      github: "https://github.com/mvagnon/agents",
+      url: undefined,
       images: [
         {
-          src: "/images/projects/test-project/images/0.png",
-          alt: "Test project 1",
-        },
-        {
-          src: "/images/projects/test-project/images/1.png",
-          alt: "Test project 2",
-        },
-        {
-          src: "/images/projects/test-project/images/2.png",
-          alt: "Test project 3",
+          src: "/images/projects/mvagnon-agents/images/0.png",
+          alt: "mvagnon/agents 1",
         },
       ],
     });

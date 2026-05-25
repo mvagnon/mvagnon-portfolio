@@ -1,5 +1,7 @@
 import { collection, config, fields, singleton } from "@keystatic/core";
 
+import { projectImagesField } from "@/lib/keystatic/project-images-field";
+
 const projectColors = ["#000000", "#1F150C", "#412D15", "#E1DCC9"] as const;
 
 function getRandomProjectColor() {
@@ -47,20 +49,14 @@ export default config({
           label: "Production URL",
           description: "Optional live project URL.",
         }),
-        images: fields.array(
-          fields.image({
-            label: "Image",
-            directory: "public/images/projects",
-            publicPath: "/images/projects/",
-            validation: { isRequired: true },
-          }),
-          {
-            label: "Images",
-            validation: {
-              length: { min: 1 },
-            },
+        images: projectImagesField({
+          label: "Images",
+          directory: "public/images/projects",
+          publicPath: "/images/projects/",
+          validation: {
+            length: { min: 1 },
           },
-        ),
+        }),
       },
     }),
   },

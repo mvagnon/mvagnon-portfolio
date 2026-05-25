@@ -30,4 +30,12 @@ describe("keystatic config", () => {
     expect(colorField.kind).toBe("form");
     expect(allowedColors).toContain(colorField.defaultValue());
   });
+
+  test("uses a multi-image upload field for project gallery images", () => {
+    const imagesField = keystaticConfig.collections.projects.schema.images;
+
+    expect(imagesField.kind).toBe("form");
+    expect(imagesField.formKind).toBe("assets");
+    expect(imagesField.defaultValue()).toEqual([]);
+  });
 });
