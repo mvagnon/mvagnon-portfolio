@@ -10,6 +10,7 @@ import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
 import { FullscreenImageGallery } from '@/components/ui/fullscreen-image-gallery';
+import { advanceIntroOpacity } from '@/components/ui/gallery-intro-opacity';
 import { ViewHoverCursor } from '@/components/ui/view-hover-cursor';
 
 export type ImageItem = string | { src: string; alt?: string };
@@ -71,6 +72,7 @@ const DEFAULT_DEPTH_RANGE = 50;
 const MAX_HORIZONTAL_OFFSET = 8;
 const MAX_VERTICAL_OFFSET = 8;
 const HOVER_SCALE_FACTOR = 1.035;
+const INTRO_FADE_DURATION = 0.6;
 
 function getTextureAspect(texture: THREE.Texture) {
 	const image = texture.image;
@@ -98,7 +100,7 @@ const createClothMaterial = () => {
 		transparent: true,
 		uniforms: {
 			map: { value: null },
-			opacity: { value: 1.0 },
+			opacity: { value: 0.0 },
 			blurAmount: { value: 0.0 },
 			scrollForce: { value: 0.0 },
 			cornerRadius: { value: 0.025 },
@@ -316,6 +318,7 @@ function GalleryScene({
 }) {
 	const [scrollVelocity, setScrollVelocity] = useState(0);
 	const [autoPlay, setAutoPlay] = useState(true);
+	const introOpacity = useRef(0);
 	const lastInteraction = useRef(0);
 
 	const normalizedImages = useMemo(
@@ -436,6 +439,12 @@ function GalleryScene({
 	}, []);
 
 	useFrame((_, delta) => {
+		introOpacity.current = advanceIntroOpacity(
+			introOpacity.current,
+			delta,
+			INTRO_FADE_DURATION
+		);
+
 		// Apply auto-play
 		if (autoPlay) {
 			setScrollVelocity((prev) => prev + 0.3 * delta);
@@ -551,7 +560,7 @@ function GalleryScene({
 			// Update material uniforms
 			const material = materials[i];
 			if (material && material.uniforms) {
-				material.uniforms.opacity.value = opacity;
+				material.uniforms.opacity.value = opacity * introOpacity.current;
 				material.uniforms.blurAmount.value = blur;
 			}
 		});
