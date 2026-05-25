@@ -101,7 +101,7 @@ export function ServicesWithAnimatedHoverModal({
           </div>
         ) : (
           <div className="flex min-h-[45vh] items-center justify-center border-y border-zinc-200 text-sm text-zinc-500">
-            Aucun projet configure.
+            No project at the moment.
           </div>
         )}
       </div>
