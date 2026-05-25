@@ -1,11 +1,6 @@
 import { config, fields, collection } from "@keystatic/core";
 
-const projectColors = [
-  "#000000",
-  "#1F150C",
-  "#412D15",
-  "#E1DCC9",
-] as const;
+const projectColors = ["#000000", "#1F150C", "#412D15", "#E1DCC9"] as const;
 
 function getRandomProjectColor() {
   return projectColors[Math.floor(Math.random() * projectColors.length)];
@@ -65,36 +60,59 @@ export default config({
         ),
       },
     }),
-    profileLinks: collection({
-      label: "Profile links",
-      slugField: "title",
-      path: "content/profile-links/*",
-      columns: ["title", "url"],
+    profile: collection({
+      label: "Profile",
+      slugField: "name",
+      path: "content/profile/*",
+      columns: ["name"],
       schema: {
-        title: fields.slug({ name: { label: "Title" } }),
-        order: fields.integer({
-          label: "Display order",
-          defaultValue: 1,
-          validation: {
-            isRequired: true,
-            min: 1,
-          },
-        }),
-        url: fields.url({
-          label: "URL",
+        name: fields.slug({ name: { label: "Name" } }),
+        description: fields.text({
+          label: "Description",
+          multiline: true,
           validation: {
             isRequired: true,
           },
         }),
-        icon: fields.select({
-          label: "Icon",
-          description: "Use Link until dedicated platform icons are available.",
-          options: [
-            { label: "GitHub", value: "github" },
-            { label: "Link", value: "link" },
-          ],
-          defaultValue: "link",
-        }),
+        links: fields.array(
+          fields.object({
+            title: fields.text({
+              label: "Title",
+              validation: {
+                isRequired: true,
+              },
+            }),
+            order: fields.integer({
+              label: "Display order",
+              defaultValue: 1,
+              validation: {
+                isRequired: true,
+                min: 1,
+              },
+            }),
+            url: fields.url({
+              label: "URL",
+              validation: {
+                isRequired: true,
+              },
+            }),
+            icon: fields.select({
+              label: "Icon",
+              description:
+                "Use Link until dedicated platform icons are available.",
+              options: [
+                { label: "GitHub", value: "github" },
+                { label: "LinkedIn", value: "linkedin" },
+                { label: "Malt", value: "malt" },
+                { label: "Link", value: "link" },
+              ],
+              defaultValue: "link",
+            }),
+          }),
+          {
+            label: "Links",
+          },
+        ),
       },
     }),
   },

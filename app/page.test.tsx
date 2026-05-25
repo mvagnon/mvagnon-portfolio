@@ -8,19 +8,23 @@ type ElementLike = {
   type: unknown;
   props?: {
     children?: unknown;
-    socialLinks?: unknown;
+    profileDescription?: unknown;
+    profileLinks?: unknown;
   };
 };
 
 describe("Home", () => {
-  test("passes configured profile links to the project list", async () => {
+  test("passes the configured profile to the project list", async () => {
     const page = await Home();
     const projectList = findFirstElement(
       page,
       (element) => element.type === ServicesWithAnimatedHoverModal,
     );
 
-    expect(projectList?.props?.socialLinks).toEqual([
+    expect(projectList?.props?.profileDescription).toBe(
+      "Je m'appelle Matthieu Vagnon, développeur full-stack et architecte logiciel. Dans mes projets, je recherche la perfection: je ne livre que des expériences premium, soignées et léchées.",
+    );
+    expect(projectList?.props?.profileLinks).toEqual([
       {
         id: "github",
         title: "GitHub",
@@ -33,14 +37,14 @@ describe("Home", () => {
         title: "LinkedIn",
         order: 2,
         url: "https://fr.linkedin.com/in/matthieu-vagnon",
-        icon: "link",
+        icon: "linkedin",
       },
       {
         id: "malt",
         title: "Malt",
         order: 3,
         url: "https://www.malt.fr/profile/matthieuvagnon1",
-        icon: "link",
+        icon: "malt",
       },
     ]);
   });

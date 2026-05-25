@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
-import type { ProfileLink } from "@/lib/profile-links";
+import type { ProfileLink } from "@/lib/profile";
 import type { Project } from "@/lib/projects";
 import { IconButton } from "@/components/ui/icon-button";
 import { ViewHoverCursor } from "@/components/ui/view-hover-cursor";
@@ -17,7 +17,8 @@ type ServicesProject = Pick<Project, "color" | "coverImage" | "id" | "title">;
 
 type ServicesWithAnimatedHoverModalProps = {
   projects: ServicesProject[];
-  socialLinks?: ProfileLink[];
+  profileDescription?: string;
+  profileLinks?: ProfileLink[];
   className?: string;
 };
 
@@ -48,7 +49,8 @@ const scaleAnimation: Variants = {
 
 export function ServicesWithAnimatedHoverModal({
   projects,
-  socialLinks = [],
+  profileDescription = "",
+  profileLinks = [],
   className,
 }: ServicesWithAnimatedHoverModalProps) {
   const [modal, setModal] = useState<ModalState>({
@@ -70,13 +72,14 @@ export function ServicesWithAnimatedHoverModal({
           </h1>
 
           <div className="flex max-w-md flex-col gap-4 md:items-end md:pt-4">
-            <p className="text-sm leading-6 font-medium text-zinc-500 md:text-right md:text-base">
-              Une selection de projets, experiences visuelles et interfaces
-              concues pour explorer une direction graphique claire.
-            </p>
+            {profileDescription ? (
+              <p className="text-sm leading-6 font-medium text-zinc-500 md:text-right md:text-base">
+                {profileDescription}
+              </p>
+            ) : null}
 
-            {socialLinks.length > 0 ? (
-              <ProfileLinksNav profileLinks={socialLinks} />
+            {profileLinks.length > 0 ? (
+              <ProfileLinksNav profileLinks={profileLinks} />
             ) : null}
           </div>
         </div>
@@ -130,7 +133,37 @@ function ProfileLinkIcon({ icon }: { icon: ProfileLink["icon"] }) {
     return (
       <Image
         src="/github.svg"
-        alt=""
+        alt="GitHub Icon"
+        width={22}
+        height={22}
+        unoptimized
+        aria-hidden="true"
+        draggable={false}
+        className="size-5.5 transition group-hover:invert"
+      />
+    );
+  }
+
+  if (icon === "linkedin") {
+    return (
+      <Image
+        src="/linkedin.svg"
+        alt="LinkedIn Icon"
+        width={22}
+        height={22}
+        unoptimized
+        aria-hidden="true"
+        draggable={false}
+        className="size-5.5 transition group-hover:invert"
+      />
+    );
+  }
+
+  if (icon === "malt") {
+    return (
+      <Image
+        src="/malt.svg"
+        alt="Malt Icon"
         width={22}
         height={22}
         unoptimized
@@ -258,7 +291,11 @@ function HoverModal({
         </div>
       </motion.div>
 
-      <ViewHoverCursor active={active} pointerX={pointerX} pointerY={pointerY} />
+      <ViewHoverCursor
+        active={active}
+        pointerX={pointerX}
+        pointerY={pointerY}
+      />
     </>
   );
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { ServicesWithAnimatedHoverModal } from "@/components/ui/services-with-animated-hover-modal";
-import { getProfileLinks } from "@/lib/profile-links";
+import { getProfile } from "@/lib/profile";
 import { getProjects } from "@/lib/projects";
 
 export const metadata: Metadata = {
@@ -9,16 +9,17 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const [projects, socialLinks] = await Promise.all([
+  const [projects, profile] = await Promise.all([
     getProjects(),
-    getProfileLinks(),
+    getProfile(),
   ]);
 
   return (
     <main className="min-h-screen bg-zinc-50">
       <ServicesWithAnimatedHoverModal
+        profileDescription={profile.description}
+        profileLinks={profile.links}
         projects={projects}
-        socialLinks={socialLinks}
       />
     </main>
   );

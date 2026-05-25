@@ -3,14 +3,17 @@ import { describe, expect, test } from "bun:test";
 import keystaticConfig from "./keystatic.config.ts";
 
 describe("keystatic config", () => {
-  test("exposes projects and profile links collections", () => {
+  test("exposes projects and profile collections", () => {
     expect(Object.keys(keystaticConfig.collections)).toEqual([
       "projects",
-      "profileLinks",
+      "profile",
     ]);
-    expect(keystaticConfig.collections.profileLinks.path).toBe(
-      "content/profile-links/*",
-    );
+    expect(keystaticConfig.collections.profile.path).toBe("content/profile/*");
+    expect(Object.keys(keystaticConfig.collections.profile.schema)).toEqual([
+      "name",
+      "description",
+      "links",
+    ]);
   });
 
   test("generates a valid project color by default", () => {
