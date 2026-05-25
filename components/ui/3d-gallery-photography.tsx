@@ -9,6 +9,8 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
+import { FullscreenImageGallery } from '@/components/ui/fullscreen-image-gallery';
+
 export type ImageItem = string | { src: string; alt?: string };
 
 interface FadeSettings {
@@ -51,8 +53,13 @@ interface PlaneData {
 	z: number;
 	imageIndex: number;
 	x: number;
-	y: number; 
+	y: number;
 }
+
+type NormalizedImageItem = {
+	src: string;
+	alt: string;
+};
 
 type TextureImage = {
 	width: number;
@@ -62,6 +69,7 @@ type TextureImage = {
 const DEFAULT_DEPTH_RANGE = 50;
 const MAX_HORIZONTAL_OFFSET = 8;
 const MAX_VERTICAL_OFFSET = 8;
+const HOVER_SCALE_FACTOR = 1.035;
 
 function getTextureAspect(texture: THREE.Texture) {
 	const image = texture.image;
@@ -92,13 +100,10 @@ const createClothMaterial = () => {
 			opacity: { value: 1.0 },
 			blurAmount: { value: 0.0 },
 			scrollForce: { value: 0.0 },
-			time: { value: 0.0 },
-			isHovered: { value: 0.0 },
+			cornerRadius: { value: 0.025 },
 		},
 		vertexShader: `
       uniform float scrollForce;
-      uniform float time;
-      uniform float isHovered;
       varying vec2 vUv;
       varying vec3 vNormal;
       
@@ -119,24 +124,9 @@ const createClothMaterial = () => {
         float ripple1 = sin(pos.x * 2.0 + scrollForce * 3.0) * 0.02;
         float ripple2 = sin(pos.y * 2.5 + scrollForce * 2.0) * 0.015;
         float clothEffect = (ripple1 + ripple2) * abs(curveIntensity) * 2.0;
-        
-        // Flag waving effect when hovered
-        float flagWave = 0.0;
-        if (isHovered > 0.5) {
-          // Create flag-like wave from left to right
-          float wavePhase = pos.x * 3.0 + time * 8.0;
-          float waveAmplitude = sin(wavePhase) * 0.1;
-          // Damping effect - stronger wave on the right side (free edge)
-          float dampening = smoothstep(-0.5, 0.5, pos.x);
-          flagWave = waveAmplitude * dampening;
-          
-          // Add secondary smaller waves for more realistic flag motion
-          float secondaryWave = sin(pos.x * 5.0 + time * 12.0) * 0.03 * dampening;
-          flagWave += secondaryWave;
-        }
-        
-        // Apply Z displacement for curving effect (inverted) with cloth ripples and flag wave
-        pos.z -= (curve + clothEffect + flagWave);
+
+        // Apply Z displacement for curving effect (inverted) with cloth ripples
+        pos.z -= (curve + clothEffect);
         
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
@@ -146,8 +136,17 @@ const createClothMaterial = () => {
       uniform float opacity;
       uniform float blurAmount;
       uniform float scrollForce;
+      uniform float cornerRadius;
       varying vec2 vUv;
       varying vec3 vNormal;
+
+      float roundedRectAlpha(vec2 uv, float radius) {
+        vec2 distanceFromCenter = abs(uv - 0.5);
+        vec2 cornerDistance = distanceFromCenter - vec2(0.5 - radius);
+        float outsideDistance = length(max(cornerDistance, 0.0)) - radius;
+
+        return 1.0 - smoothstep(0.0, 0.006, outsideDistance);
+      }
       
       void main() {
         vec4 color = texture2D(map, vUv);
@@ -172,8 +171,15 @@ const createClothMaterial = () => {
         // Add subtle lighting effect based on curving
         float curveHighlight = abs(scrollForce) * 0.05;
         color.rgb += vec3(curveHighlight * 0.1);
+
+        float cornerAlpha = roundedRectAlpha(vUv, cornerRadius);
+        float alpha = color.a * opacity * cornerAlpha;
+
+        if (alpha < 0.01) {
+          discard;
+        }
         
-        gl_FragColor = vec4(color.rgb, color.a * opacity);
+        gl_FragColor = vec4(color.rgb, alpha);
       }
     `,
 	});
@@ -184,14 +190,19 @@ function ImagePlane({
 	position,
 	scale,
 	material,
+	isHoverEnabled,
+	onSelect,
 }: {
 	texture: THREE.Texture;
 	position: [number, number, number];
 	scale: [number, number, number];
 	material: THREE.ShaderMaterial;
+	isHoverEnabled: boolean;
+	onSelect: () => void;
 }) {
 	const meshRef = useRef<THREE.Mesh>(null);
 	const [isHovered, setIsHovered] = useState(false);
+	const shouldHover = isHovered && isHoverEnabled;
 
 	useEffect(() => {
 		if (material && texture) {
@@ -199,11 +210,26 @@ function ImagePlane({
 		}
 	}, [material, texture]);
 
-	useEffect(() => {
-		if (material && material.uniforms) {
-			material.uniforms.isHovered.value = isHovered ? 1.0 : 0.0;
+	useFrame(() => {
+		const mesh = meshRef.current;
+
+		if (!mesh) {
+			return;
 		}
-	}, [material, isHovered]);
+
+		const scaleFactor = shouldHover ? HOVER_SCALE_FACTOR : 1;
+		mesh.scale.x = THREE.MathUtils.lerp(
+			mesh.scale.x,
+			scale[0] * scaleFactor,
+			0.18
+		);
+		mesh.scale.y = THREE.MathUtils.lerp(
+			mesh.scale.y,
+			scale[1] * scaleFactor,
+			0.18
+		);
+		mesh.scale.z = THREE.MathUtils.lerp(mesh.scale.z, scale[2], 0.18);
+	});
 
 	return (
 		<mesh
@@ -211,11 +237,25 @@ function ImagePlane({
 			position={position}
 			scale={scale}
 			material={material}
+			onClick={() => {
+				if (isHoverEnabled) {
+					setIsHovered(false);
+					onSelect();
+				}
+			}}
 			onPointerEnter={() => setIsHovered(true)}
 			onPointerLeave={() => setIsHovered(false)}
 		>
 			<planeGeometry args={[1, 1, 32, 32]} />
 		</mesh>
+	);
+}
+
+function normalizeImages(images: ImageItem[]): NormalizedImageItem[] {
+	return images.map((img) =>
+		typeof img === 'string'
+			? { src: img, alt: '' }
+			: { src: img.src, alt: img.alt ?? '' }
 	);
 }
 
@@ -233,16 +273,16 @@ function GalleryScene({
 		blurOut: { start: 0.9, end: 1.0 },
 		maxBlur: 3.0,
 	},
-}: Omit<InfiniteGalleryProps, 'className' | 'style'>) {
+	onImageSelect,
+}: Omit<InfiniteGalleryProps, 'className' | 'style'> & {
+	onImageSelect: (imageIndex: number) => void;
+}) {
 	const [scrollVelocity, setScrollVelocity] = useState(0);
 	const [autoPlay, setAutoPlay] = useState(true);
 	const lastInteraction = useRef(0);
 
 	const normalizedImages = useMemo(
-		() =>
-			images.map((img) =>
-				typeof img === 'string' ? { src: img, alt: '' } : img
-			),
+		() => normalizeImages(images),
 		[images]
 	);
 
@@ -358,7 +398,7 @@ function GalleryScene({
 		return () => clearInterval(interval);
 	}, []);
 
-	useFrame((state, delta) => {
+	useFrame((_, delta) => {
 		// Apply auto-play
 		if (autoPlay) {
 			setScrollVelocity((prev) => prev + 0.3 * delta);
@@ -367,11 +407,9 @@ function GalleryScene({
 		// Damping
 		setScrollVelocity((prev) => prev * 0.95);
 
-		// Update time uniform for all materials
-		const time = state.clock.getElapsedTime();
+		// Update scroll force uniform for all materials
 		materials.forEach((material) => {
 			if (material && material.uniforms) {
-				material.uniforms.time.value = time;
 				material.uniforms.scrollForce.value = scrollVelocity;
 			}
 		});
@@ -493,6 +531,9 @@ function GalleryScene({
 				if (!texture || !material) return null;
 
 				const worldZ = plane.z - depthRange / 2;
+				const normalizedPosition = plane.z / depthRange;
+				const isHoverEnabled =
+					normalizedPosition < fadeSettings.fadeOut.start;
 
 				// Calculate scale to maintain aspect ratio
 				const aspect = getTextureAspect(texture);
@@ -506,6 +547,8 @@ function GalleryScene({
 						position={[plane.x, plane.y, worldZ]} // Position planes relative to camera center
 						scale={scale}
 						material={material}
+						isHoverEnabled={isHoverEnabled}
+						onSelect={() => onImageSelect(plane.imageIndex)}
 					/>
 				);
 			})}
@@ -514,12 +557,15 @@ function GalleryScene({
 }
 
 // Fallback component for when WebGL is not available
-function FallbackGallery({ images }: { images: ImageItem[] }) {
+function FallbackGallery({
+	images,
+	onImageSelect,
+}: {
+	images: ImageItem[];
+	onImageSelect: (imageIndex: number) => void;
+}) {
 	const normalizedImages = useMemo(
-		() =>
-			images.map((img) =>
-				typeof img === 'string' ? { src: img, alt: '' } : img
-			),
+		() => normalizeImages(images),
 		[images]
 	);
 
@@ -530,7 +576,13 @@ function FallbackGallery({ images }: { images: ImageItem[] }) {
 			</p>
 			<div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
 				{normalizedImages.map((img, i) => (
-					<div key={i} className="relative h-32 w-full overflow-hidden rounded">
+					<button
+						key={`${img.src}-${i}`}
+						type="button"
+						aria-label={`Ouvrir l'image ${i + 1} en plein ecran`}
+						onClick={() => onImageSelect(i)}
+						className="relative h-32 w-full overflow-hidden rounded-sm transition hover:scale-[1.03]"
+					>
 						<Image
 							src={img.src}
 							alt={img.alt ?? ''}
@@ -538,7 +590,7 @@ function FallbackGallery({ images }: { images: ImageItem[] }) {
 							sizes="(min-width: 768px) 33vw, 50vw"
 							className="object-cover"
 						/>
-					</div>
+					</button>
 				))}
 			</div>
 		</div>
@@ -562,6 +614,9 @@ export default function InfiniteGallery({
 		maxBlur: 8.0,
 	},
 }: InfiniteGalleryProps) {
+	const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
+		null
+	);
 	const [webglSupported] = useState(() => {
 		if (typeof document === 'undefined') {
 			return true;
@@ -576,11 +631,24 @@ export default function InfiniteGallery({
 			return false;
 		}
 	});
+	const normalizedImages = useMemo(() => normalizeImages(images), [images]);
+	const closeFullscreenGallery = useCallback(() => {
+		setSelectedImageIndex(null);
+	}, []);
 
 	if (!webglSupported) {
 		return (
 			<div className={className} style={style}>
-				<FallbackGallery images={images} />
+				<FallbackGallery
+					images={images}
+					onImageSelect={setSelectedImageIndex}
+				/>
+				<FullscreenImageGallery
+					images={normalizedImages}
+					open={selectedImageIndex !== null}
+					selectedIndex={selectedImageIndex ?? 0}
+					onClose={closeFullscreenGallery}
+				/>
 			</div>
 		);
 	}
@@ -598,8 +666,15 @@ export default function InfiniteGallery({
 					visibleCount={visibleCount}
 					fadeSettings={fadeSettings}
 					blurSettings={blurSettings}
+					onImageSelect={setSelectedImageIndex}
 				/>
 			</Canvas>
+			<FullscreenImageGallery
+				images={normalizedImages}
+				open={selectedImageIndex !== null}
+				selectedIndex={selectedImageIndex ?? 0}
+				onClose={closeFullscreenGallery}
+			/>
 		</div>
 	);
 }
