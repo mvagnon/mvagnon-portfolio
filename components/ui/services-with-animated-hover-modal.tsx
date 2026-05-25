@@ -1,0 +1,263 @@
+"use client";
+
+import { ArrowUpRight } from "lucide-react";
+import { motion, useMotionValue, useSpring } from "motion/react";
+import type { Variants } from "motion/react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+import { cn } from "@/lib/utils";
+import type { Project } from "@/lib/projects";
+
+type ServicesProject = Pick<Project, "id" | "images" | "title">;
+
+type ServicesWithAnimatedHoverModalProps = {
+  projects: ServicesProject[];
+  className?: string;
+};
+
+type ModalState = {
+  active: boolean;
+  index: number;
+};
+
+const previewColors = [
+  "#18181b",
+  "#d6d3d1",
+  "#f4f4f5",
+  "#52525b",
+  "#fafafa",
+  "#27272a",
+];
+
+const scaleAnimation: Variants = {
+  closed: {
+    scale: 0,
+    transition: { duration: 0.4, ease: [0.32, 0, 0.67, 0] as const },
+    x: "-50%",
+    y: "-50%",
+  },
+  enter: {
+    scale: 1,
+    transition: { duration: 0.4, ease: [0.76, 0, 0.24, 1] as const },
+    x: "-50%",
+    y: "-50%",
+  },
+  initial: {
+    scale: 0,
+    x: "-50%",
+    y: "-50%",
+  },
+};
+
+export function ServicesWithAnimatedHoverModal({
+  projects,
+  className,
+}: ServicesWithAnimatedHoverModalProps) {
+  const [modal, setModal] = useState<ModalState>({
+    active: false,
+    index: 0,
+  });
+
+  return (
+    <section
+      className={cn(
+        "relative isolate min-h-screen overflow-hidden bg-zinc-50 px-5 py-16 text-zinc-950 sm:px-8 lg:px-12 lg:py-20",
+        className,
+      )}
+    >
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-14">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-start">
+          <h1 className="font-serif text-6xl italic tracking-normal text-balance md:text-8xl">
+            Projects.
+          </h1>
+          <p className="max-w-md text-sm leading-6 font-medium text-zinc-500 md:pt-4 md:text-base">
+            Une selection de projets, experiences visuelles et interfaces
+            concues pour explorer une direction graphique claire.
+          </p>
+        </div>
+
+        {projects.length > 0 ? (
+          <div className="relative flex min-h-[58vh] items-center">
+            <div className="flex w-full flex-col">
+              {projects.map((project, index) => (
+                <ProjectRow
+                  index={index}
+                  key={project.id}
+                  project={project}
+                  setModal={setModal}
+                />
+              ))}
+            </div>
+
+            <HoverModal modal={modal} projects={projects} />
+          </div>
+        ) : (
+          <div className="flex min-h-[45vh] items-center justify-center border-y border-zinc-200 text-sm text-zinc-500">
+            Aucun projet configure.
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function ProjectRow({
+  index,
+  project,
+  setModal,
+}: {
+  index: number;
+  project: ServicesProject;
+  setModal: (modal: ModalState) => void;
+}) {
+  const previewImage = normalizeImage(project.images[0]);
+
+  return (
+    <Link
+      href={`/${project.id}`}
+      className="group flex w-full items-center justify-between gap-5 border-t border-zinc-300 py-8 transition-opacity duration-200 last:border-b hover:opacity-55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950/70 md:py-11 lg:px-12"
+      onMouseEnter={() => setModal({ active: true, index })}
+      onMouseLeave={() => setModal({ active: false, index })}
+    >
+      <div className="flex min-w-0 items-center gap-4">
+        {previewImage ? (
+          <span className="relative size-16 shrink-0 overflow-hidden bg-zinc-200 md:hidden">
+            <Image
+              src={previewImage.src}
+              alt=""
+              fill
+              sizes="64px"
+              className="object-cover"
+            />
+          </span>
+        ) : null}
+
+        <h2 className="min-w-0 text-3xl leading-none font-normal break-words transition-transform duration-300 group-hover:translate-x-2.5 sm:text-5xl lg:text-6xl">
+          {project.title}
+        </h2>
+      </div>
+
+      <span className="flex shrink-0 items-center gap-2 text-sm font-light text-zinc-600 transition-transform duration-300 group-hover:translate-x-2.5 sm:text-base">
+        View project
+        <ArrowUpRight className="size-4" aria-hidden="true" />
+      </span>
+    </Link>
+  );
+}
+
+function HoverModal({
+  modal,
+  projects,
+}: {
+  modal: ModalState;
+  projects: ServicesProject[];
+}) {
+  const { active, index } = modal;
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const previewX = useSpring(pointerX, { damping: 28, stiffness: 140 });
+  const previewY = useSpring(pointerY, { damping: 28, stiffness: 140 });
+  const cursorX = useSpring(pointerX, { damping: 26, stiffness: 220 });
+  const cursorY = useSpring(pointerY, { damping: 26, stiffness: 220 });
+  const labelX = useSpring(pointerX, { damping: 24, stiffness: 260 });
+  const labelY = useSpring(pointerY, { damping: 24, stiffness: 260 });
+
+  useEffect(() => {
+    const handleMouseMove = (event: MouseEvent) => {
+      pointerX.set(event.clientX);
+      pointerY.set(event.clientY);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [pointerX, pointerY]);
+
+  return (
+    <>
+      <motion.div
+        animate={active ? "enter" : "closed"}
+        className="pointer-events-none fixed left-0 top-0 z-30 hidden h-[22rem] w-[25rem] items-center justify-center overflow-hidden bg-white shadow-2xl lg:flex"
+        initial="initial"
+        style={{ left: previewX, top: previewY }}
+        variants={scaleAnimation}
+      >
+        <div
+          className="absolute h-full w-full transition-[top] duration-500 ease-[cubic-bezier(0.76,0,0.24,1)]"
+          style={{ top: `${index * -100}%` }}
+        >
+          {projects.map((project, projectIndex) => {
+            const previewImage = normalizeImage(project.images[0]);
+
+            return (
+              <div
+                className="flex h-full w-full items-center justify-center p-8"
+                key={project.id}
+                style={{
+                  backgroundColor:
+                    previewColors[projectIndex % previewColors.length],
+                }}
+              >
+                {previewImage ? (
+                  <Image
+                    src={previewImage.src}
+                    alt={previewImage.alt}
+                    width={320}
+                    height={240}
+                    sizes="320px"
+                    className="h-auto max-h-full w-auto select-none object-contain"
+                    draggable={false}
+                  />
+                ) : (
+                  <span className="max-w-64 text-center text-2xl font-medium text-white">
+                    {project.title}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </motion.div>
+
+      <motion.div
+        animate={active ? "enter" : "closed"}
+        className="pointer-events-none fixed left-0 top-0 z-40 hidden size-20 items-center justify-center rounded-full bg-zinc-950 text-sm font-light text-white lg:flex"
+        initial="initial"
+        style={{ left: cursorX, top: cursorY }}
+        variants={scaleAnimation}
+      />
+
+      <motion.div
+        animate={active ? "enter" : "closed"}
+        className="pointer-events-none fixed left-0 top-0 z-40 hidden size-20 items-center justify-center rounded-full bg-transparent text-sm font-light text-white lg:flex"
+        initial="initial"
+        style={{ left: labelX, top: labelY }}
+        variants={scaleAnimation}
+      >
+        View
+      </motion.div>
+    </>
+  );
+}
+
+export default ServicesWithAnimatedHoverModal;
+
+function normalizeImage(image: ServicesProject["images"][number] | undefined) {
+  if (!image) {
+    return null;
+  }
+
+  if (typeof image === "string") {
+    return {
+      src: image,
+      alt: "",
+    };
+  }
+
+  return {
+    src: image.src,
+    alt: image.alt ?? "",
+  };
+}

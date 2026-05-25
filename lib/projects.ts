@@ -16,6 +16,13 @@ export async function getProjectIds() {
   return reader.collections.projects.list();
 }
 
+export async function getProjects(): Promise<Project[]> {
+  const projectIds = await getProjectIds();
+  const projects = await Promise.all(projectIds.map((id) => getProject(id)));
+
+  return projects.filter(isProject);
+}
+
 export async function getProject(id: string): Promise<Project | null> {
   const project = await reader.collections.projects.read(id);
 
@@ -37,4 +44,8 @@ export async function getProject(id: string): Promise<Project | null> {
 
 function isImagePath(image: string | null): image is string {
   return typeof image === "string" && image.length > 0;
+}
+
+function isProject(project: Project | null): project is Project {
+  return project !== null;
 }

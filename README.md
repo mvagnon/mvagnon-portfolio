@@ -16,4 +16,4 @@ Keystatic is available at `/keystatic`.
 
 Projects are configured in the `projects` collection. Each project uses the title as its slug, stores content in `content/projects/*`, and stores uploaded images in `public/images/projects`.
 
-Project detail pages are available at `/project/:id` and render the project title with its images in the 3D gallery.
+The project index is available at `/` and renders the animated hover list. Project detail pages are available at `/:id` and render the project title with its images in the 3D gallery.
