@@ -6,9 +6,12 @@ import keystaticConfig from "@/keystatic.config";
 
 const reader = createReader(process.cwd(), keystaticConfig);
 
+const projectColors = ["#000000", "#1F150C", "#412D15", "#E1DCC9"] as const;
+
 export type Project = {
   id: string;
   title: string;
+  order: number;
   color: string;
   coverImage: ImageItem;
   github?: string;
@@ -22,12 +25,28 @@ export async function getProjectIds() {
 
 export async function getProjects(): Promise<Project[]> {
   const projectIds = await getProjectIds();
-  const projects = await Promise.all(projectIds.map((id) => getProject(id)));
+  const projects = await Promise.all(
+    projectIds.map((id, index) => readProject(id, index + 1)),
+  );
 
   return projects.filter(isProject);
 }
 
 export async function getProject(id: string): Promise<Project | null> {
+  const projectIds = await getProjectIds();
+  const projectIndex = projectIds.indexOf(id);
+
+  if (projectIndex === -1) {
+    return null;
+  }
+
+  return readProject(id, projectIndex + 1);
+}
+
+async function readProject(
+  id: string,
+  collectionPosition: number,
+): Promise<Project | null> {
   const project = await reader.collections.projects.read(id);
 
   if (!project) {
@@ -37,7 +56,8 @@ export async function getProject(id: string): Promise<Project | null> {
   return {
     id,
     title: project.title,
-    color: project.color,
+    order: collectionPosition,
+    color: getProjectColor(collectionPosition),
     coverImage: {
       src: project.coverImage,
       alt: `${project.title} cover`,
@@ -51,6 +71,10 @@ export async function getProject(id: string): Promise<Project | null> {
         alt: `${project.title} ${index + 1}`,
       })),
   };
+}
+
+function getProjectColor(order: number) {
+  return projectColors[(order - 1) % projectColors.length];
 }
 
 function normalizeOptionalUrl(url: string | null): string | undefined {

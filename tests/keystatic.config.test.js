@@ -12,6 +12,7 @@ describe("keystatic config", () => {
 
   test("exposes the projects collection and profile singleton", () => {
     expect(Object.keys(keystaticConfig.collections)).toEqual(["projects"]);
+    expect(keystaticConfig.collections.projects.columns).toEqual(["title"]);
     expect(Object.keys(keystaticConfig.singletons)).toEqual(["profile"]);
     expect(keystaticConfig.singletons.profile.path).toBe(
       "content/profile/matthieu-vagnon",
@@ -23,12 +24,20 @@ describe("keystatic config", () => {
     ]);
   });
 
-  test("generates a valid project color by default", () => {
+  test("accepts legacy project order metadata without exposing it", () => {
+    const orderField = keystaticConfig.collections.projects.schema.order;
+
+    expect(orderField.kind).toBe("form");
+    expect(orderField.label).toBe("Ignored");
+    expect(orderField.parse(1)).toEqual({ value: 1 });
+  });
+
+  test("accepts legacy project color metadata without exposing it", () => {
     const colorField = keystaticConfig.collections.projects.schema.color;
-    const allowedColors = ["#000000", "#1F150C", "#412D15", "#E1DCC9"];
 
     expect(colorField.kind).toBe("form");
-    expect(allowedColors).toContain(colorField.defaultValue());
+    expect(colorField.label).toBe("Ignored");
+    expect(colorField.parse("#412D15")).toEqual({ value: "#412D15" });
   });
 
   test("uses a multi-image upload field for project gallery images", () => {

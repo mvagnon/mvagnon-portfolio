@@ -9,7 +9,8 @@ describe("getProjects", () => {
     expect(projects).toContainEqual({
       id: "mvagnon-agents",
       title: "mvagnon/agents",
-      color: "#412D15",
+      order: 1,
+      color: "#000000",
       coverImage: {
         src: "/images/projects/mvagnon-agents/coverImage.jpeg",
         alt: "mvagnon/agents cover",
@@ -23,5 +24,25 @@ describe("getProjects", () => {
         },
       ],
     });
+  });
+
+  test("uses collection position as project order and color index", async () => {
+    const projects = await getProjects();
+
+    expect(projects.map((project) => project.order)).toEqual([1, 2, 3]);
+    expect(projects.map((project) => project.id)).toEqual([
+      "mvagnon-agents",
+      "ubby",
+      "personal-dashboard",
+    ]);
+    expect(projects.map((project) => project.color)).toEqual([
+      "#000000",
+      "#1F150C",
+      "#412D15",
+    ]);
+
+    for (let index = 1; index < projects.length; index += 1) {
+      expect(projects[index]?.color).not.toBe(projects[index - 1]?.color);
+    }
   });
 });
