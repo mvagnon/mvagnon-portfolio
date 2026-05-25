@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { animate, motion, useMotionValue } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
 
 export type FramerCarouselImage = {
@@ -137,25 +138,23 @@ export function FramerCarousel({
           ))}
         </motion.div>
 
-        <button
-          type="button"
+        <IconButton
           aria-label="Image precedente"
           disabled={!canGoPrevious}
           onClick={goToPrevious}
-          className="absolute left-3 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/35 text-white backdrop-blur transition hover:bg-white hover:text-zinc-950 disabled:pointer-events-none disabled:opacity-35 sm:left-6"
+          className="absolute left-3 top-1/2 z-10 -translate-y-1/2 sm:left-6"
         >
           <ChevronLeft className="size-5" aria-hidden="true" />
-        </button>
+        </IconButton>
 
-        <button
-          type="button"
+        <IconButton
           aria-label="Image suivante"
           disabled={!canGoNext}
           onClick={goToNext}
-          className="absolute right-3 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/35 text-white backdrop-blur transition hover:bg-white hover:text-zinc-950 disabled:pointer-events-none disabled:opacity-35 sm:right-6"
+          className="absolute right-3 top-1/2 z-10 -translate-y-1/2 sm:right-6"
         >
           <ChevronRight className="size-5" aria-hidden="true" />
-        </button>
+        </IconButton>
 
         <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2 rounded-full border border-white/15 bg-black/35 p-2 backdrop-blur">
           {images.map((image, imageIndex) => (
@@ -166,7 +165,7 @@ export function FramerCarousel({
               aria-current={imageIndex === activeIndex}
               onClick={() => setIndex(imageIndex)}
               className={cn(
-                "h-2 rounded-full bg-white/45 transition-all",
+                "h-2 cursor-pointer rounded-full bg-white/45 transition-all",
                 imageIndex === activeIndex ? "w-8 bg-white" : "w-2",
               )}
             />

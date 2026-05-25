@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { ProjectGallery } from "@/components/project/project-gallery";
+import { IconButton } from "@/components/ui/icon-button";
 import { getProject, getProjectIds } from "@/lib/projects";
 
 type ProjectPageProps = {
@@ -62,14 +62,14 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       )}
 
       <header className="pointer-events-none fixed inset-x-0 top-0 z-10 flex justify-start px-5 py-6 sm:px-8 sm:py-8 lg:px-12">
-        <Link
+        <IconButton
           href="/"
           transitionTypes={["nav-back"]}
           aria-label="Retour a l'accueil"
-          className="pointer-events-auto flex size-10 items-center justify-center rounded-full border border-white/15 bg-black/25 text-white backdrop-blur transition hover:bg-white hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+          className="pointer-events-auto bg-black/25"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
-        </Link>
+        </IconButton>
       </header>
 
       <div className="pointer-events-none fixed inset-0 z-10 flex items-center justify-center px-3 text-center text-white mix-blend-exclusion">

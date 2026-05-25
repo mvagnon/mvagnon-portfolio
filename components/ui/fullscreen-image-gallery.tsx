@@ -7,6 +7,7 @@ import {
   FramerCarousel,
   type FramerCarouselImage,
 } from "@/components/ui/framer-carousel";
+import { IconButton } from "@/components/ui/icon-button";
 
 type FullscreenImageGalleryProps = {
   images: FramerCarouselImage[];
@@ -69,15 +70,14 @@ export function FullscreenImageGallery({
       aria-label="Galerie plein ecran"
       className="fixed inset-0 z-50 bg-zinc-950/95 text-white backdrop-blur-sm"
     >
-      <button
+      <IconButton
         ref={closeButtonRef}
-        type="button"
         aria-label="Fermer la galerie"
         onClick={onClose}
-        className="absolute right-4 top-4 z-20 flex size-10 items-center justify-center rounded-full border border-white/15 bg-black/35 text-white backdrop-blur transition hover:bg-white hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:right-6 sm:top-6"
+        className="absolute right-4 top-4 z-20 sm:right-6 sm:top-6"
       >
         <X className="size-5" aria-hidden="true" />
-      </button>
+      </IconButton>
 
       <FramerCarousel
         images={images}
