@@ -10,6 +10,7 @@ import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
 import { FullscreenImageGallery } from '@/components/ui/fullscreen-image-gallery';
+import { ViewHoverCursor } from '@/components/ui/view-hover-cursor';
 
 export type ImageItem = string | { src: string; alt?: string };
 
@@ -191,6 +192,7 @@ function ImagePlane({
 	scale,
 	material,
 	isHoverEnabled,
+	onHoverChange,
 	onSelect,
 }: {
 	texture: THREE.Texture;
@@ -198,17 +200,29 @@ function ImagePlane({
 	scale: [number, number, number];
 	material: THREE.ShaderMaterial;
 	isHoverEnabled: boolean;
+	onHoverChange: (isHovered: boolean) => void;
 	onSelect: () => void;
 }) {
 	const meshRef = useRef<THREE.Mesh>(null);
-	const [isHovered, setIsHovered] = useState(false);
-	const shouldHover = isHovered && isHoverEnabled;
+	const isHoveredRef = useRef(false);
 
 	useEffect(() => {
 		if (material && texture) {
 			material.uniforms.map.value = texture;
 		}
 	}, [material, texture]);
+
+	const setPlaneHovered = useCallback(
+		(isHovered: boolean) => {
+			if (isHoveredRef.current === isHovered) {
+				return;
+			}
+
+			isHoveredRef.current = isHovered;
+			onHoverChange(isHovered);
+		},
+		[onHoverChange]
+	);
 
 	useFrame(() => {
 		const mesh = meshRef.current;
@@ -217,6 +231,11 @@ function ImagePlane({
 			return;
 		}
 
+		if (!isHoverEnabled) {
+			setPlaneHovered(false);
+		}
+
+		const shouldHover = isHoveredRef.current && isHoverEnabled;
 		const scaleFactor = shouldHover ? HOVER_SCALE_FACTOR : 1;
 		mesh.scale.x = THREE.MathUtils.lerp(
 			mesh.scale.x,
@@ -231,20 +250,36 @@ function ImagePlane({
 		mesh.scale.z = THREE.MathUtils.lerp(mesh.scale.z, scale[2], 0.18);
 	});
 
+	const handlePointerEnter = useCallback(() => {
+		if (!isHoverEnabled) {
+			return;
+		}
+
+		setPlaneHovered(true);
+	}, [isHoverEnabled, setPlaneHovered]);
+
+	const handlePointerLeave = useCallback(() => {
+		setPlaneHovered(false);
+	}, [setPlaneHovered]);
+
+	const handleClick = useCallback(() => {
+		if (!isHoverEnabled) {
+			return;
+		}
+
+		setPlaneHovered(false);
+		onSelect();
+	}, [isHoverEnabled, onSelect, setPlaneHovered]);
+
 	return (
 		<mesh
 			ref={meshRef}
 			position={position}
 			scale={scale}
 			material={material}
-			onClick={() => {
-				if (isHoverEnabled) {
-					setIsHovered(false);
-					onSelect();
-				}
-			}}
-			onPointerEnter={() => setIsHovered(true)}
-			onPointerLeave={() => setIsHovered(false)}
+			onClick={handleClick}
+			onPointerEnter={handlePointerEnter}
+			onPointerLeave={handlePointerLeave}
 		>
 			<planeGeometry args={[1, 1, 32, 32]} />
 		</mesh>
@@ -273,9 +308,11 @@ function GalleryScene({
 		blurOut: { start: 0.9, end: 1.0 },
 		maxBlur: 3.0,
 	},
+	onImageHoverChange,
 	onImageSelect,
 }: Omit<InfiniteGalleryProps, 'className' | 'style'> & {
 	onImageSelect: (imageIndex: number) => void;
+	onImageHoverChange: (isHovered: boolean) => void;
 }) {
 	const [scrollVelocity, setScrollVelocity] = useState(0);
 	const [autoPlay, setAutoPlay] = useState(true);
@@ -548,6 +585,7 @@ function GalleryScene({
 						scale={scale}
 						material={material}
 						isHoverEnabled={isHoverEnabled}
+						onHoverChange={onImageHoverChange}
 						onSelect={() => onImageSelect(plane.imageIndex)}
 					/>
 				);
@@ -559,9 +597,11 @@ function GalleryScene({
 // Fallback component for when WebGL is not available
 function FallbackGallery({
 	images,
+	onImageHoverChange,
 	onImageSelect,
 }: {
 	images: ImageItem[];
+	onImageHoverChange: (isHovered: boolean) => void;
 	onImageSelect: (imageIndex: number) => void;
 }) {
 	const normalizedImages = useMemo(
@@ -580,6 +620,8 @@ function FallbackGallery({
 						key={`${img.src}-${i}`}
 						type="button"
 						aria-label={`Ouvrir l'image ${i + 1} en plein ecran`}
+						onMouseEnter={() => onImageHoverChange(true)}
+						onMouseLeave={() => onImageHoverChange(false)}
 						onClick={() => onImageSelect(i)}
 						className="relative h-32 w-full overflow-hidden rounded-sm transition hover:scale-[1.03]"
 					>
@@ -617,6 +659,7 @@ export default function InfiniteGallery({
 	const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
 		null
 	);
+	const [isImageHovered, setIsImageHovered] = useState(false);
 	const [webglSupported] = useState(() => {
 		if (typeof document === 'undefined') {
 			return true;
@@ -635,14 +678,21 @@ export default function InfiniteGallery({
 	const closeFullscreenGallery = useCallback(() => {
 		setSelectedImageIndex(null);
 	}, []);
+	const selectImage = useCallback((imageIndex: number) => {
+		setIsImageHovered(false);
+		setSelectedImageIndex(imageIndex);
+	}, []);
+	const showViewCursor = isImageHovered && selectedImageIndex === null;
 
 	if (!webglSupported) {
 		return (
 			<div className={className} style={style}>
 				<FallbackGallery
 					images={images}
-					onImageSelect={setSelectedImageIndex}
+					onImageHoverChange={setIsImageHovered}
+					onImageSelect={selectImage}
 				/>
+				<ViewHoverCursor active={showViewCursor} />
 				<FullscreenImageGallery
 					images={normalizedImages}
 					open={selectedImageIndex !== null}
@@ -666,9 +716,11 @@ export default function InfiniteGallery({
 					visibleCount={visibleCount}
 					fadeSettings={fadeSettings}
 					blurSettings={blurSettings}
-					onImageSelect={setSelectedImageIndex}
+					onImageHoverChange={setIsImageHovered}
+					onImageSelect={selectImage}
 				/>
 			</Canvas>
+			<ViewHoverCursor active={showViewCursor} />
 			<FullscreenImageGallery
 				images={normalizedImages}
 				open={selectedImageIndex !== null}

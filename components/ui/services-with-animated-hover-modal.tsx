@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import type { Project } from "@/lib/projects";
+import { ViewHoverCursor } from "@/components/ui/view-hover-cursor";
 
 type ServicesProject = Pick<Project, "color" | "coverImage" | "id" | "title">;
 
@@ -151,10 +152,6 @@ function HoverModal({
   const pointerY = useMotionValue(0);
   const previewX = useSpring(pointerX, { damping: 28, stiffness: 140 });
   const previewY = useSpring(pointerY, { damping: 28, stiffness: 140 });
-  const cursorX = useSpring(pointerX, { damping: 30, stiffness: 190 });
-  const cursorY = useSpring(pointerY, { damping: 30, stiffness: 190 });
-  const labelX = useSpring(pointerX, { damping: 30, stiffness: 205 });
-  const labelY = useSpring(pointerY, { damping: 30, stiffness: 205 });
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
@@ -212,23 +209,7 @@ function HoverModal({
         </div>
       </motion.div>
 
-      <motion.div
-        animate={active ? "enter" : "closed"}
-        className="pointer-events-none fixed left-0 top-0 z-40 hidden size-20 items-center justify-center rounded-full bg-primary text-sm font-light text-primary-foreground lg:flex"
-        initial="initial"
-        style={{ left: cursorX, top: cursorY }}
-        variants={scaleAnimation}
-      />
-
-      <motion.div
-        animate={active ? "enter" : "closed"}
-        className="pointer-events-none fixed left-0 top-0 z-40 hidden size-20 items-center justify-center rounded-full bg-transparent text-sm font-light text-primary-foreground lg:flex"
-        initial="initial"
-        style={{ left: labelX, top: labelY }}
-        variants={scaleAnimation}
-      >
-        View
-      </motion.div>
+      <ViewHoverCursor active={active} pointerX={pointerX} pointerY={pointerY} />
     </>
   );
 }
