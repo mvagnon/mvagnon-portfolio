@@ -9,6 +9,7 @@ const reader = createReader(process.cwd(), keystaticConfig);
 export type Project = {
   id: string;
   title: string;
+  color: string;
   coverImage: ImageItem;
   github?: string;
   url?: string;
@@ -36,6 +37,7 @@ export async function getProject(id: string): Promise<Project | null> {
   return {
     id,
     title: project.title,
+    color: project.color,
     coverImage: {
       src: project.coverImage,
       alt: `${project.title} cover`,

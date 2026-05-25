@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { Project } from "@/lib/projects";
 
-type ServicesProject = Pick<Project, "coverImage" | "id" | "title">;
+type ServicesProject = Pick<Project, "color" | "coverImage" | "id" | "title">;
 
 type ServicesWithAnimatedHoverModalProps = {
   projects: ServicesProject[];
@@ -21,15 +21,6 @@ type ModalState = {
   active: boolean;
   index: number;
 };
-
-const previewColors = [
-  "#18181b",
-  "#d6d3d1",
-  "#f4f4f5",
-  "#52525b",
-  "#fafafa",
-  "#27272a",
-];
 
 const scaleAnimation: Variants = {
   closed: {
@@ -188,7 +179,7 @@ function HoverModal({
           className="absolute h-full w-full transition-[top] duration-500 ease-[cubic-bezier(0.76,0,0.24,1)]"
           style={{ top: `${index * -100}%` }}
         >
-          {projects.map((project, projectIndex) => {
+          {projects.map((project) => {
             const previewImage = normalizeImage(project.coverImage);
 
             return (
@@ -196,8 +187,7 @@ function HoverModal({
                 className="flex h-full w-full items-center justify-center p-8"
                 key={project.id}
                 style={{
-                  backgroundColor:
-                    previewColors[projectIndex % previewColors.length],
+                  backgroundColor: project.color,
                 }}
               >
                 {previewImage ? (

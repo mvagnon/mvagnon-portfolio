@@ -16,6 +16,6 @@ Keystatic is available at `/keystatic`.
 
 Projects are configured in the `projects` collection. Each project uses the title as its slug, stores content in `content/projects/*`, and stores uploaded images in `public/images/projects`.
 
-Project entries include a required cover image for the `/` hover preview, a required image gallery, and optional `github` and `url` links.
+Project entries include a generated color, a required cover image for the `/` hover preview, a required image gallery, and optional `github` and `url` links.
 
 The project index is available at `/` and renders the animated hover list. Project detail pages are available at `/:id` and render the project title with its images in the 3D gallery.

@@ -42,7 +42,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   }
 
   return (
-    <main className="relative min-h-screen h-full w-full overflow-hidden bg-zinc-950 text-white">
+    <main
+      className="relative min-h-screen h-full w-full overflow-hidden bg-zinc-950 text-white"
+      style={{ backgroundColor: project.color }}
+    >
       {project.images.length > 0 ? (
         <ProjectGallery
           images={project.images}
@@ -57,8 +60,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           Aucune image configuree pour ce projet.
         </div>
       )}
-
-      <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,rgba(9,9,11,0.72)_0%,rgba(9,9,11,0.12)_38%,rgba(9,9,11,0.14)_68%,rgba(9,9,11,0.64)_100%)]" />
 
       <header className="pointer-events-none fixed inset-x-0 top-0 z-10 flex justify-start px-5 py-6 sm:px-8 sm:py-8 lg:px-12">
         <Link

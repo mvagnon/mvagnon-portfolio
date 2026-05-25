@@ -1,5 +1,6 @@
 title: Test project
-coverImage: /images/projects/test-project/images/0.png
+color: '#412D15'
+coverImage: /images/projects/test-project/coverImage.png
 github: https://github.com/mvagnon/test-project
 url: https://test-project.example.com
 images:

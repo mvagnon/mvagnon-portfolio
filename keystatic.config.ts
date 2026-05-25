@@ -1,5 +1,16 @@
 import { config, fields, collection } from "@keystatic/core";
 
+const projectColors = [
+  "#000000",
+  "#1F150C",
+  "#412D15",
+  "#E1DCC9",
+] as const;
+
+function getRandomProjectColor() {
+  return projectColors[Math.floor(Math.random() * projectColors.length)];
+}
+
 export default config({
   storage: {
     kind: "local",
@@ -12,6 +23,18 @@ export default config({
       columns: ["title"],
       schema: {
         title: fields.slug({ name: { label: "Title" } }),
+        color: fields.text({
+          label: "Color",
+          description: "Generated automatically for project backgrounds.",
+          defaultValue: getRandomProjectColor,
+          validation: {
+            isRequired: true,
+            pattern: {
+              regex: /^#[0-9a-fA-F]{6}$/,
+              message: "Use a hex color like #000000.",
+            },
+          },
+        }),
         coverImage: fields.image({
           label: "Cover image",
           directory: "public/images/projects",
