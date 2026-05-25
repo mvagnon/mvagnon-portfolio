@@ -71,7 +71,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       </header>
 
       <div className="pointer-events-none fixed inset-0 z-10 flex items-center justify-center px-3 text-center text-white mix-blend-exclusion">
-        <h1 className="max-w-5xl text-balance break-words font-serif text-4xl italic tracking-normal md:text-7xl">
+        <h1 className="max-w-5xl text-balance break-words text-4xl italic tracking-normal md:text-7xl">
           {project.title}
         </h1>
       </div>

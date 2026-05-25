@@ -45,7 +45,6 @@ Do not run dev servers, containers, or browser automation by default. Run lint, 
   - slug field: `title`
   - uploaded images: `public/images/projects`
   - public image path: `/images/projects/`
-- Post content uses the `posts` collection at `content/posts/*` with Markdoc content.
 - Update `keystatic.config.ts`, content files, and readers together when changing content schema.
 
 ## Project Structure

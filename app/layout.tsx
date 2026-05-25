@@ -30,7 +30,7 @@ export default function RootLayout({
       className={`${ovo.variable} ${mulish.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <NextTopLoader />
+        <NextTopLoader color="var(--primary)" />
         {children}
       </body>
     </html>

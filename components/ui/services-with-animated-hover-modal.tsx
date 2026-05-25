@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { Project } from "@/lib/projects";
 
-type ServicesProject = Pick<Project, "id" | "images" | "title">;
+type ServicesProject = Pick<Project, "coverImage" | "id" | "title">;
 
 type ServicesWithAnimatedHoverModalProps = {
   projects: ServicesProject[];
@@ -69,7 +69,7 @@ export function ServicesWithAnimatedHoverModal({
     >
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-14">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-start">
-          <h1 className="font-serif text-6xl italic tracking-normal text-balance md:text-8xl">
+          <h1 className="text-6xl italic tracking-normal text-balance md:text-8xl">
             Projects.
           </h1>
           <p className="max-w-md text-sm leading-6 font-medium text-zinc-500 md:pt-4 md:text-base">
@@ -112,7 +112,7 @@ function ProjectRow({
   project: ServicesProject;
   setModal: (modal: ModalState) => void;
 }) {
-  const previewImage = normalizeImage(project.images[0]);
+  const previewImage = normalizeImage(project.coverImage);
 
   return (
     <Link
@@ -189,7 +189,7 @@ function HoverModal({
           style={{ top: `${index * -100}%` }}
         >
           {projects.map((project, projectIndex) => {
-            const previewImage = normalizeImage(project.images[0]);
+            const previewImage = normalizeImage(project.coverImage);
 
             return (
               <div
@@ -223,7 +223,7 @@ function HoverModal({
 
       <motion.div
         animate={active ? "enter" : "closed"}
-        className="pointer-events-none fixed left-0 top-0 z-40 hidden size-20 items-center justify-center rounded-full bg-zinc-950 text-sm font-light text-white lg:flex"
+        className="pointer-events-none fixed left-0 top-0 z-40 hidden size-20 items-center justify-center rounded-full bg-primary text-sm font-light text-primary-foreground lg:flex"
         initial="initial"
         style={{ left: cursorX, top: cursorY }}
         variants={scaleAnimation}
@@ -231,7 +231,7 @@ function HoverModal({
 
       <motion.div
         animate={active ? "enter" : "closed"}
-        className="pointer-events-none fixed left-0 top-0 z-40 hidden size-20 items-center justify-center rounded-full bg-transparent text-sm font-light text-white lg:flex"
+        className="pointer-events-none fixed left-0 top-0 z-40 hidden size-20 items-center justify-center rounded-full bg-transparent text-sm font-light text-primary-foreground lg:flex"
         initial="initial"
         style={{ left: labelX, top: labelY }}
         variants={scaleAnimation}
@@ -244,7 +244,7 @@ function HoverModal({
 
 export default ServicesWithAnimatedHoverModal;
 
-function normalizeImage(image: ServicesProject["images"][number] | undefined) {
+function normalizeImage(image: Project["coverImage"] | string | undefined) {
   if (!image) {
     return null;
   }

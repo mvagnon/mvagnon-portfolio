@@ -1,4 +1,7 @@
 title: Test project
+coverImage: /images/projects/test-project/images/0.png
+github: https://github.com/mvagnon/test-project
+url: https://test-project.example.com
 images:
   - /images/projects/test-project/images/0.png
   - /images/projects/test-project/images/1.png
