@@ -1,16 +1,15 @@
 import { describe, expect, test } from "bun:test";
 
-import { getProfile } from "./profile";
+import { getProfile } from "@/lib/profile";
 
 describe("getProfile", () => {
   test("returns the configured profile with links sorted by display order", async () => {
     const profile = await getProfile();
 
     expect(profile).toEqual({
-      id: "matthieu-vagnon",
-      name: "Matthieu Vagnon",
+      title: "Matthieu Vagnon's Portfolio",
       description:
-        "Je m'appelle Matthieu Vagnon, développeur full-stack et architecte logiciel. Dans mes projets, je recherche la perfection: je ne livre que des expériences premium, soignées et léchées.",
+        "I'm Matthieu Vagnon, a full-stack developer and software architect. I craft premium digital experiences with obsessive attention to detail, from solid architecture to the final polished interaction.",
       links: [
         {
           id: "github",

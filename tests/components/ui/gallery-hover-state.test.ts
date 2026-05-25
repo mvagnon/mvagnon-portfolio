@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
   clearGalleryHoverState,
   updateGalleryHoverState,
-} from "./gallery-hover-state";
+} from "@/components/ui/gallery-hover-state";
 
 describe("updateGalleryHoverState", () => {
   test("keeps the gallery hovered while at least one plane is hovered", () => {

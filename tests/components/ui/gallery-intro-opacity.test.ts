@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
   advanceIntroOpacity,
   getStaggeredIntroOpacity,
-} from "./gallery-intro-opacity";
+} from "@/components/ui/gallery-intro-opacity";
 
 describe("advanceIntroOpacity", () => {
   test("progresses from hidden to visible over the configured duration", () => {

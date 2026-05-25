@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import { IconButton } from "@/components/ui/icon-button";
 
-import ProjectPage from "./page";
+import ProjectPage from "@/app/[id]/page";
 
 type ElementLike = {
   type: unknown;

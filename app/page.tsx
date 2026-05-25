@@ -4,9 +4,13 @@ import { ServicesWithAnimatedHoverModal } from "@/components/ui/services-with-an
 import { getProfile } from "@/lib/profile";
 import { getProjects } from "@/lib/projects";
 
-export const metadata: Metadata = {
-  title: "Projects",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const profile = await getProfile();
+
+  return {
+    title: profile.title,
+  };
+}
 
 export default async function Home() {
   const [projects, profile] = await Promise.all([

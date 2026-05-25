@@ -1,4 +1,4 @@
-import { config, fields, collection } from "@keystatic/core";
+import { collection, config, fields, singleton } from "@keystatic/core";
 
 const projectColors = ["#000000", "#1F150C", "#412D15", "#E1DCC9"] as const;
 
@@ -60,13 +60,18 @@ export default config({
         ),
       },
     }),
-    profile: collection({
+  },
+  singletons: {
+    profile: singleton({
       label: "Profile",
-      slugField: "name",
-      path: "content/profile/*",
-      columns: ["name"],
+      path: "content/profile/matthieu-vagnon",
       schema: {
-        name: fields.slug({ name: { label: "Name" } }),
+        title: fields.text({
+          label: "Page title",
+          validation: {
+            isRequired: true,
+          },
+        }),
         description: fields.text({
           label: "Description",
           multiline: true,

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { getProjects } from "./projects.ts";
+import { getProjects } from "@/lib/projects.ts";
 
 describe("getProjects", () => {
   test("returns configured projects with ids, cover images, links, and images", async () => {

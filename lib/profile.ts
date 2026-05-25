@@ -17,29 +17,22 @@ export type ProfileLink = {
 };
 
 export type Profile = {
-  id: string;
-  name: string;
+  title: string;
   description: string;
   links: ProfileLink[];
 };
 
 export async function getProfile(): Promise<Profile> {
-  const profiles = await reader.collections.profile.all();
-  const profile = profiles
-    .toSorted((a, b) =>
-      a.entry.name.localeCompare(b.entry.name, "fr", { sensitivity: "base" }),
-    )
-    .at(0);
+  const profile = await reader.singletons.profile.read();
 
   if (!profile) {
     throw new Error("Profile content is missing.");
   }
 
   return {
-    id: profile.slug,
-    name: profile.entry.name,
-    description: profile.entry.description,
-    links: profile.entry.links
+    title: profile.title,
+    description: profile.description,
+    links: profile.links
       .map((link) => ({
         id: toProfileLinkId(link.title),
         title: link.title,

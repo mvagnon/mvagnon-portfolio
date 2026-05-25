@@ -45,6 +45,9 @@ Do not run dev servers, containers, or browser automation by default. Run lint, 
   - slug field: `title`
   - uploaded images: `public/images/projects`
   - public image path: `/images/projects/`
+- Profile content uses the `profile` singleton:
+  - source file: `content/profile/matthieu-vagnon.yaml`
+  - `title` controls the home page metadata title
 - Update `keystatic.config.ts`, content files, and readers together when changing content schema.
 
 ## Project Structure
