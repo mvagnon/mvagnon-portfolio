@@ -23,7 +23,7 @@ Projects are configured in the `projects` collection. Each project uses the titl
 
 Project entries include an optional client, a required creation datetime, a required cover image for the `/` hover preview, a required image gallery, and optional `github` and `url` links. Projects are sorted by creation datetime in descending order, and background colors are generated from that sorted position.
 
-The project gallery field accepts multiple image uploads at once and stores them in `public/images/projects/<project-slug>/images`.
+The project gallery uses Keystatic's built-in array of image fields and stores uploaded files in `public/images/projects/<project-slug>/images`.
 
 Profile content is configured in the `profile` singleton. It lives in `content/profile/matthieu-vagnon.yaml` and controls the page title, description, and icon buttons rendered on `/`.
 

@@ -72,11 +72,18 @@ describe("keystatic config", () => {
     expect(colorField.parse("#412D15")).toEqual({ value: "#412D15" });
   });
 
-  test("uses a multi-image upload field for project gallery images", () => {
+  test("uses built-in image fields for project gallery images", () => {
     const imagesField = keystaticConfig.collections.projects.schema.images;
 
-    expect(imagesField.kind).toBe("form");
-    expect(imagesField.formKind).toBe("assets");
-    expect(imagesField.defaultValue()).toEqual([]);
+    expect(imagesField.kind).toBe("array");
+    expect(imagesField.label).toBe("Images");
+    expect(imagesField.validation).toEqual({
+      length: { min: 1 },
+    });
+
+    expect(imagesField.element.kind).toBe("form");
+    expect(imagesField.element.formKind).toBe("asset");
+    expect(imagesField.element.label).toBe("Image");
+    expect(imagesField.element.directory).toBe("public/images/projects");
   });
 });

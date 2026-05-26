@@ -1,7 +1,5 @@
 import { collection, config, fields, singleton } from "@keystatic/core";
 
-import { projectImagesField } from "@/lib/keystatic/project-images-field";
-
 export default config({
   storage: {
     kind: "cloud",
@@ -47,14 +45,20 @@ export default config({
           label: "Production URL",
           description: "Optional live project URL.",
         }),
-        images: projectImagesField({
-          label: "Images",
-          directory: "public/images/projects",
-          publicPath: "/images/projects/",
-          validation: {
-            length: { min: 1 },
+        images: fields.array(
+          fields.image({
+            label: "Image",
+            directory: "public/images/projects",
+            publicPath: "/images/projects/",
+            validation: { isRequired: true },
+          }),
+          {
+            label: "Images",
+            validation: {
+              length: { min: 1 },
+            },
           },
-        }),
+        ),
       },
     }),
   },
