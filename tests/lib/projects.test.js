@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
   compareProjectEntries,
+  normalizeProjectDate,
   toProject,
 } from "@/lib/projects.ts";
 
@@ -19,25 +20,25 @@ const baseProjectEntry = {
 };
 
 describe("project transforms", () => {
-  test("sorts project entries by creation datetime descending", () => {
+  test("sorts project entries by date descending", () => {
     const projects = [
       {
         ...baseProjectEntry,
         id: "older",
         title: "Older",
-        createdAt: "2026-05-23T09:00",
+        date: "2026-05-23T09:00",
       },
       {
         ...baseProjectEntry,
         id: "newer",
         title: "Newer",
-        createdAt: "2026-05-25T09:00",
+        date: "2026-05-25T09:00",
       },
       {
         ...baseProjectEntry,
         id: "middle",
         title: "Middle",
-        createdAt: "2026-05-24T09:00",
+        date: "2026-05-24T09:00",
       },
     ].toSorted(compareProjectEntries);
 
@@ -65,6 +66,16 @@ describe("project transforms", () => {
       color: "#000000",
     });
   });
+
+  test("normalizes project date with legacy creation metadata fallback", () => {
+    expect(normalizeProjectDate("2026-05-26T09:00", "2026-05-25T09:00"))
+      .toBe("2026-05-26T09:00");
+    expect(normalizeProjectDate(null, "2026-05-25T09:00")).toBe(
+      "2026-05-25T09:00",
+    );
+    expect(normalizeProjectDate(null, new Date("2026-05-25T09:00:00.000Z")))
+      .toBe("2026-05-25T09:00:00.000Z");
+  });
 });
 
 function baseProjectEntryWithId(id) {
@@ -72,6 +83,6 @@ function baseProjectEntryWithId(id) {
     ...baseProjectEntry,
     id,
     title: id,
-    createdAt: "2026-05-25T09:00",
+    date: "2026-05-25T09:00",
   };
 }

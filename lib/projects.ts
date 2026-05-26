@@ -12,7 +12,7 @@ export type Project = {
   id: string;
   title: string;
   client?: string;
-  createdAt: string;
+  date: string;
   order: number;
   color: string;
   coverImage: ImageItem;
@@ -52,11 +52,17 @@ async function readProjectEntry(id: string): Promise<ProjectEntry | null> {
     return null;
   }
 
+  const date = normalizeProjectDate(project.date, project.createdAt);
+
+  if (!date) {
+    return null;
+  }
+
   return {
     id,
     title: project.title,
     client: normalizeOptionalText(project.client),
-    createdAt: project.createdAt,
+    date,
     coverImage: {
       src: project.coverImage,
       alt: `${project.title} cover`,
@@ -84,9 +90,30 @@ export function toProject(project: ProjectEntry, index: number): Project {
 
 export function compareProjectEntries(a: ProjectEntry, b: ProjectEntry) {
   return (
-    b.createdAt.localeCompare(a.createdAt) ||
+    b.date.localeCompare(a.date) ||
     a.title.localeCompare(b.title, "fr", { sensitivity: "base" })
   );
+}
+
+export function normalizeProjectDate(
+  date: string | null,
+  legacyDate?: unknown,
+): string | undefined {
+  const normalizedDate = normalizeOptionalText(date);
+
+  if (normalizedDate) {
+    return normalizedDate;
+  }
+
+  if (typeof legacyDate === "string") {
+    return normalizeOptionalText(legacyDate);
+  }
+
+  if (legacyDate instanceof Date && !Number.isNaN(legacyDate.getTime())) {
+    return legacyDate.toISOString();
+  }
+
+  return undefined;
 }
 
 function getProjectColor(order: number) {

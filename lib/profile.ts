@@ -19,7 +19,14 @@ export type ProfileLink = {
 export type Profile = {
   title: string;
   description: string;
+  url?: string;
+  titleUrl?: string;
   links: ProfileLink[];
+};
+
+export type ProfileUrl = {
+  title: string;
+  url: string;
 };
 
 export async function getProfile(): Promise<Profile> {
@@ -32,6 +39,8 @@ export async function getProfile(): Promise<Profile> {
   return {
     title: profile.title,
     description: profile.description,
+    url: normalizeOptionalUrl(profile.url),
+    titleUrl: normalizeOptionalText(profile.titleUrl),
     links: profile.links
       .map((link) => ({
         id: toProfileLinkId(link.title),
@@ -46,6 +55,17 @@ export async function getProfile(): Promise<Profile> {
           a.title.localeCompare(b.title, "fr", { sensitivity: "base" }),
       ),
   };
+}
+
+export function getProfileUrl(profile: Pick<Profile, "titleUrl" | "url">) {
+  if (!profile.url || !profile.titleUrl) {
+    return undefined;
+  }
+
+  return {
+    title: profile.titleUrl,
+    url: profile.url,
+  } satisfies ProfileUrl;
 }
 
 function normalizeProfileLinkIcon(icon: string): ProfileLinkIcon {
@@ -63,4 +83,14 @@ function toProfileLinkId(title: string) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "") || "link"
   );
+}
+
+function normalizeOptionalUrl(url: string | null): string | undefined {
+  return typeof url === "string" && url.length > 0 ? url : undefined;
+}
+
+function normalizeOptionalText(text: string | null): string | undefined {
+  const value = typeof text === "string" ? text.trim() : "";
+
+  return value.length > 0 ? value : undefined;
 }

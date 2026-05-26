@@ -5,7 +5,7 @@ const project = {
   id: "project",
   title: "Project",
   client: "Acme",
-  createdAt: "2026-05-25T09:00",
+  date: "2026-05-25T09:00",
   order: 1,
   color: "#000000",
   coverImage: {
@@ -15,12 +15,26 @@ const project = {
   images: [],
 };
 
+const profile = {
+  title: "Portfolio",
+  description: "Description",
+  url: "https://example.com",
+  titleUrl: "Book a call",
+  links: [],
+};
+
 const projectsModule = await import("@/lib/projects.ts");
+const profileModule = await import("@/lib/profile.ts");
 
 mock.module("@/lib/projects", () => ({
   ...projectsModule,
   getProject: async () => project,
   getProjectIds: async () => [project.id],
+}));
+
+mock.module("@/lib/profile", () => ({
+  ...profileModule,
+  getProfile: async () => profile,
 }));
 
 mock.module("@/components/project/project-gallery", () => ({
@@ -41,6 +55,21 @@ describe("ProjectPage", () => {
     );
 
     expect(toText(heading)).toBe("Project \u2022 Acme");
+  });
+
+  test("renders the profile URL as a top-right external link", async () => {
+    const element = await ProjectPage({
+      params: Promise.resolve({ id: project.id }),
+    });
+
+    const link = findElement(
+      element,
+      (node) =>
+        isValidElement(node) &&
+        node.props.href === profile.url,
+    );
+
+    expect(toText(link)).toBe(profile.titleUrl);
   });
 });
 

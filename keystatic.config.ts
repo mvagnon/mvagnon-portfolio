@@ -12,23 +12,27 @@ export default config({
       label: "Projects",
       slugField: "title",
       path: "content/projects/*",
-      columns: ["title", "client", "createdAt"],
+      columns: ["title", "client", "date"],
       sortBy: {
-        field: "createdAt",
+        field: "date",
         direction: "descending",
       },
       schema: {
-        title: fields.slug({ name: { label: "Title" } }),
+        title: fields.slug({
+          name: {
+            label: "Title",
+            validation: {
+              isRequired: true,
+            },
+          },
+        }),
         client: fields.text({
           label: "Client",
         }),
-        createdAt: fields.datetime({
-          label: "Created at",
-          defaultValue: { kind: "now" },
-          validation: {
-            isRequired: true,
-          },
+        date: fields.datetime({
+          label: "Date",
         }),
+        createdAt: fields.ignored(),
         order: fields.ignored(),
         color: fields.ignored(),
         coverImage: fields.image({
@@ -79,6 +83,14 @@ export default config({
           validation: {
             isRequired: true,
           },
+        }),
+        url: fields.url({
+          label: "URL",
+          description: "Optional featured profile URL.",
+        }),
+        titleUrl: fields.text({
+          label: "Title URL",
+          description: "Label displayed for the featured profile URL.",
         }),
         links: fields.array(
           fields.object({

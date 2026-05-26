@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, LinkIcon } from "lucide-react";
+import { LinkIcon } from "lucide-react";
 import { motion, useMotionValue, useSpring } from "motion/react";
 import type { Variants } from "motion/react";
 import Image from "next/image";
@@ -8,8 +8,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
-import type { ProfileLink } from "@/lib/profile";
+import type { ProfileLink, ProfileUrl } from "@/lib/profile";
 import type { Project } from "@/lib/projects";
+import { ArrowTextLink } from "@/components/ui/arrow-text-link";
+import { FadeInImage } from "@/components/ui/fade-in-image";
 import { IconButton } from "@/components/ui/icon-button";
 import { ViewHoverCursor } from "@/components/ui/view-hover-cursor";
 
@@ -19,6 +21,7 @@ type ServicesWithAnimatedHoverModalProps = {
   projects: ServicesProject[];
   profileDescription?: string;
   profileLinks?: ProfileLink[];
+  profileUrl?: ProfileUrl;
   className?: string;
 };
 
@@ -51,6 +54,7 @@ export function ServicesWithAnimatedHoverModal({
   projects,
   profileDescription = "",
   profileLinks = [],
+  profileUrl,
   className,
 }: ServicesWithAnimatedHoverModalProps) {
   const [modal, setModal] = useState<ModalState>({
@@ -67,9 +71,20 @@ export function ServicesWithAnimatedHoverModal({
     >
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-14">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-start">
-          <h1 className="text-6xl italic tracking-normal text-balance md:text-8xl">
-            Projects.
-          </h1>
+          <div className="flex flex-col items-start gap-3">
+            <h1 className="text-6xl italic tracking-normal text-balance md:text-8xl">
+              Projects.
+            </h1>
+
+            {profileUrl ? (
+              <ArrowTextLink
+                href={profileUrl.url}
+                className="hover:text-zinc-950"
+              >
+                {profileUrl.title}
+              </ArrowTextLink>
+            ) : null}
+          </div>
 
           <div className="flex max-w-md flex-col gap-4 md:items-end md:pt-4">
             {profileDescription ? (
@@ -199,10 +214,11 @@ function ProjectRow({
       <div className="flex min-w-0 items-center gap-4">
         {previewImage ? (
           <span className="relative size-16 shrink-0 overflow-hidden bg-zinc-200 md:hidden">
-            <Image
+            <FadeInImage
               src={previewImage.src}
               alt=""
               fill
+              quality={100}
               sizes="64px"
               className="object-cover"
             />
@@ -214,10 +230,9 @@ function ProjectRow({
         </h2>
       </div>
 
-      <span className="flex shrink-0 items-center gap-2 text-sm font-light text-zinc-600 transition-transform duration-300 group-hover:translate-x-2.5 sm:text-base">
+      <ArrowTextLink className="transition-transform duration-300 group-hover:translate-x-2.5">
         View project
-        <ArrowUpRight className="size-4" aria-hidden="true" />
-      </span>
+      </ArrowTextLink>
     </Link>
   );
 }
@@ -271,11 +286,12 @@ function HoverModal({
                 }}
               >
                 {previewImage ? (
-                  <Image
+                  <FadeInImage
                     src={previewImage.src}
                     alt={previewImage.alt}
                     width={320}
                     height={240}
+                    quality={100}
                     sizes="320px"
                     className="h-auto max-h-full w-auto select-none object-contain"
                     draggable={false}

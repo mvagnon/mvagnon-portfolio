@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { ServicesWithAnimatedHoverModal } from "@/components/ui/services-with-animated-hover-modal";
-import { getProfile } from "@/lib/profile";
+import { getProfile, getProfileUrl } from "@/lib/profile";
 import { getProjects } from "@/lib/projects";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -23,6 +23,7 @@ export default async function Home() {
       <ServicesWithAnimatedHoverModal
         profileDescription={profile.description}
         profileLinks={profile.links}
+        profileUrl={getProfileUrl(profile)}
         projects={projects}
       />
     </main>

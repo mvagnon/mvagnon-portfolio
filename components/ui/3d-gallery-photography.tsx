@@ -2,7 +2,7 @@
 
 /* eslint-disable react-hooks/immutability, react-hooks/refs -- Three.js scene objects are mutated through the R3F frame loop. */
 
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import type React from "react";
 import { useRef, useMemo, useCallback, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
@@ -10,6 +10,7 @@ import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
 import { FullscreenImageGallery } from "@/components/ui/fullscreen-image-gallery";
+import { FadeInImage } from "@/components/ui/fade-in-image";
 import {
   clearGalleryHoverState,
   updateGalleryHoverState,
@@ -74,9 +75,12 @@ type TextureImage = {
 };
 
 const DEFAULT_DEPTH_RANGE = 50;
+const PROJECT_IMAGE_QUALITY = 100;
+const TEXTURE_IMAGE_HEIGHT = 1080;
+const TEXTURE_IMAGE_WIDTH = 1920;
 const MAX_HORIZONTAL_OFFSET = 8;
 const MAX_VERTICAL_OFFSET = 8;
-const INTRO_FADE_DURATION = 0.6;
+const INTRO_FADE_DURATION = 0.5;
 const INTRO_STAGGER_DELAY = 0.12;
 
 function getTextureAspect(texture: THREE.Texture) {
@@ -278,6 +282,28 @@ function normalizeImages(images: ImageItem[]): NormalizedImageItem[] {
   );
 }
 
+function getOptimizedTextureSrc(src: string) {
+  const pathname = src.split("?")[0]?.toLowerCase();
+
+  if (
+    !src.startsWith("/") ||
+    src.startsWith("//") ||
+    pathname?.endsWith(".svg")
+  ) {
+    return src;
+  }
+
+  const { props } = getImageProps({
+    src,
+    alt: "",
+    width: TEXTURE_IMAGE_WIDTH,
+    height: TEXTURE_IMAGE_HEIGHT,
+    quality: PROJECT_IMAGE_QUALITY,
+  });
+
+  return props.src;
+}
+
 function GalleryScene({
   images,
   speed = 1,
@@ -304,7 +330,11 @@ function GalleryScene({
   const lastInteraction = useRef(0);
 
   const normalizedImages = useMemo(() => normalizeImages(images), [images]);
-  const textures = useTexture(normalizedImages.map((img) => img.src));
+  const textureSources = useMemo(
+    () => normalizedImages.map((img) => getOptimizedTextureSrc(img.src)),
+    [normalizedImages],
+  );
+  const textures = useTexture(textureSources);
 
   // Create materials pool
   const materials = useMemo(
@@ -613,10 +643,11 @@ function FallbackGallery({
             onClick={() => onImageSelect(i)}
             className="relative h-32 w-full overflow-hidden rounded-sm"
           >
-            <Image
+            <FadeInImage
               src={img.src}
               alt={img.alt ?? ""}
               fill
+              quality={PROJECT_IMAGE_QUALITY}
               sizes="(min-width: 768px) 33vw, 50vw"
               className="object-cover"
             />

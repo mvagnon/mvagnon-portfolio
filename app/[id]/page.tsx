@@ -4,7 +4,9 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { ProjectGallery } from "@/components/project/project-gallery";
+import { ArrowTextLink } from "@/components/ui/arrow-text-link";
 import { IconButton } from "@/components/ui/icon-button";
+import { getProfile, getProfileUrl } from "@/lib/profile";
 import { getProject, getProjectIds } from "@/lib/projects";
 
 type ProjectPageProps = {
@@ -36,12 +38,13 @@ export async function generateMetadata({
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { id } = await params;
-  const project = await getProject(id);
+  const [project, profile] = await Promise.all([getProject(id), getProfile()]);
 
   if (!project) {
     notFound();
   }
 
+  const profileUrl = getProfileUrl(profile);
   const projectLinks = [
     {
       href: project.url,
@@ -78,7 +81,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </div>
       )}
 
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-10 flex justify-start px-5 py-6 sm:px-8 sm:py-8 lg:px-12">
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-10 flex items-center justify-between px-5 py-6 sm:px-8 sm:py-8 lg:px-12">
         <IconButton
           href="/"
           transitionTypes={["nav-back"]}
@@ -87,6 +90,15 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
         </IconButton>
+
+        {profileUrl ? (
+          <ArrowTextLink
+            href={profileUrl.url}
+            className="pointer-events-auto text-white mix-blend-exclusion hover:opacity-70"
+          >
+            {profileUrl.title}
+          </ArrowTextLink>
+        ) : null}
       </header>
 
       <div className="pointer-events-none fixed inset-0 z-10 flex items-center justify-center px-3 text-center text-white mix-blend-exclusion">

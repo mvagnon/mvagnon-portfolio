@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { animate, motion, useMotionValue } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { FadeInImage } from "@/components/ui/fade-in-image";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
 
@@ -125,10 +125,11 @@ export function FramerCarousel({
               key={`${image.src}-${imageIndex}`}
               className="relative h-full w-full shrink-0"
             >
-              <Image
+              <FadeInImage
                 src={image.src}
                 alt={image.alt ?? ""}
                 fill
+                quality={100}
                 priority={imageIndex === activeIndex}
                 sizes="100vw"
                 className="select-none object-contain"
