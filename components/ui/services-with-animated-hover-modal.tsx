@@ -17,6 +17,18 @@ import { ViewHoverCursor } from "@/components/ui/view-hover-cursor";
 
 type ServicesProject = Pick<Project, "color" | "coverImage" | "id" | "title">;
 
+type ProjectListItem =
+  | (ServicesProject & {
+      kind: "project";
+    })
+  | {
+      kind: "github";
+      id: string;
+      title: string;
+      color: string;
+      href: string;
+    };
+
 type ServicesWithAnimatedHoverModalProps = {
   projects: ServicesProject[];
   profileDescription?: string;
@@ -29,6 +41,14 @@ type ModalState = {
   active: boolean;
   index: number;
 };
+
+const githubRepositoriesItem = {
+  kind: "github",
+  id: "github-repositories",
+  title: "And much more...",
+  color: "#f4f4f5",
+  href: "https://github.com/mvagnon?tab=repositories",
+} satisfies ProjectListItem;
 
 const scaleAnimation: Variants = {
   closed: {
@@ -61,6 +81,13 @@ export function ServicesWithAnimatedHoverModal({
     active: false,
     index: 0,
   });
+  const projectItems = [
+    ...projects.map((project) => ({
+      ...project,
+      kind: "project" as const,
+    })),
+    githubRepositoriesItem,
+  ];
 
   return (
     <section
@@ -102,7 +129,7 @@ export function ServicesWithAnimatedHoverModal({
         {projects.length > 0 ? (
           <div className="relative flex min-h-[58vh] items-center">
             <div className="flex w-full flex-col">
-              {projects.map((project, index) => (
+              {projectItems.map((project, index) => (
                 <ProjectRow
                   index={index}
                   key={project.id}
@@ -112,7 +139,7 @@ export function ServicesWithAnimatedHoverModal({
               ))}
             </div>
 
-            <HoverModal modal={modal} projects={projects} />
+            <HoverModal modal={modal} projects={projectItems} />
           </div>
         ) : (
           <div className="flex min-h-[45vh] items-center justify-center border-y border-zinc-200 text-sm text-zinc-500">
@@ -198,19 +225,15 @@ function ProjectRow({
   setModal,
 }: {
   index: number;
-  project: ServicesProject;
+  project: ProjectListItem;
   setModal: (modal: ModalState) => void;
 }) {
-  const previewImage = normalizeImage(project.coverImage);
-
-  return (
-    <Link
-      href={`/${project.id}`}
-      transitionTypes={["nav-forward"]}
-      className="group flex w-full items-center justify-between gap-5 border-t border-zinc-300 py-8 transition-opacity duration-200 last:border-b hover:opacity-55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950/70 md:py-11 lg:px-12"
-      onMouseEnter={() => setModal({ active: true, index })}
-      onMouseLeave={() => setModal({ active: false, index })}
-    >
+  const previewImage =
+    project.kind === "project" ? normalizeImage(project.coverImage) : null;
+  const className =
+    "group flex w-full items-center justify-between gap-5 border-t border-zinc-300 py-8 transition-opacity duration-200 last:border-b hover:opacity-55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950/70 md:py-11 lg:px-12";
+  const content = (
+    <>
       <div className="flex min-w-0 items-center gap-4">
         {previewImage ? (
           <span className="relative size-16 shrink-0 overflow-hidden bg-zinc-200 md:hidden">
@@ -231,8 +254,38 @@ function ProjectRow({
       </div>
 
       <ArrowTextLink className="transition-transform duration-300 group-hover:translate-x-2.5">
-        View project
+        {project.kind === "github" ? "View GitHub" : "View project"}
       </ArrowTextLink>
+    </>
+  );
+
+  const hoverHandlers = {
+    onMouseEnter: () => setModal({ active: true, index }),
+    onMouseLeave: () => setModal({ active: false, index }),
+  };
+
+  if (project.kind === "github") {
+    return (
+      <a
+        href={project.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+        {...hoverHandlers}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      href={`/${project.id}`}
+      transitionTypes={["nav-forward"]}
+      className={className}
+      {...hoverHandlers}
+    >
+      {content}
     </Link>
   );
 }
@@ -242,7 +295,7 @@ function HoverModal({
   projects,
 }: {
   modal: ModalState;
-  projects: ServicesProject[];
+  projects: ProjectListItem[];
 }) {
   const { active, index } = modal;
   const pointerX = useMotionValue(0);
@@ -265,7 +318,7 @@ function HoverModal({
     <>
       <motion.div
         animate={active ? "enter" : "closed"}
-        className="pointer-events-none fixed left-0 top-0 z-30 hidden h-[22rem] w-[25rem] items-center justify-center overflow-hidden bg-white shadow-2xl lg:flex"
+        className="pointer-events-none fixed left-0 top-0 z-30 hidden h-[22rem] w-[25rem] items-center justify-center overflow-hidden bg-transparent lg:flex"
         initial="initial"
         style={{ left: previewX, top: previewY }}
         variants={scaleAnimation}
@@ -275,17 +328,21 @@ function HoverModal({
           style={{ top: `${index * -100}%` }}
         >
           {projects.map((project) => {
-            const previewImage = normalizeImage(project.coverImage);
+            const previewImage =
+              project.kind === "project"
+                ? normalizeImage(project.coverImage)
+                : null;
 
             return (
               <div
                 className="flex h-full w-full items-center justify-center p-8"
                 key={project.id}
                 style={{
-                  backgroundColor: project.color,
+                  backgroundColor:
+                    project.kind === "github" ? "transparent" : project.color,
                 }}
               >
-                {previewImage ? (
+                {project.kind === "github" ? null : previewImage ? (
                   <FadeInImage
                     src={previewImage.src}
                     alt={previewImage.alt}

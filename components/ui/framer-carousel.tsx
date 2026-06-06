@@ -1,8 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { animate, motion, useMotionValue } from "motion/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState, type TransitionEvent } from "react";
 
 import { FadeInImage } from "@/components/ui/fade-in-image";
 import { IconButton } from "@/components/ui/icon-button";
@@ -20,12 +19,16 @@ type FramerCarouselProps = {
   viewportClassName?: string;
 };
 
-function clampIndex(index: number, imageCount: number) {
+function normalizeIndex(index: number, imageCount: number) {
   if (imageCount <= 0) {
     return 0;
   }
 
-  return Math.min(Math.max(index, 0), imageCount - 1);
+  return ((index % imageCount) + imageCount) % imageCount;
+}
+
+function getTrackIndex(activeIndex: number, imageCount: number) {
+  return imageCount > 1 ? activeIndex + 1 : activeIndex;
 }
 
 export function FramerCarousel({
@@ -34,57 +37,82 @@ export function FramerCarousel({
   className,
   viewportClassName,
 }: FramerCarouselProps) {
-  const [index, setIndex] = useState(() =>
-    clampIndex(initialIndex, images.length),
+  const [activeIndex, setActiveIndex] = useState(() =>
+    normalizeIndex(initialIndex, images.length),
   );
-  const [containerWidth, setContainerWidth] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
+  const [trackIndex, setTrackIndex] = useState(() =>
+    getTrackIndex(normalizeIndex(initialIndex, images.length), images.length),
+  );
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const activeIndex = clampIndex(index, images.length);
-  const canGoPrevious = activeIndex > 0;
-  const canGoNext = activeIndex < images.length - 1;
+  const imageCount = images.length;
+  const canLoop = imageCount > 1;
+  const carouselImages = canLoop
+    ? [images[imageCount - 1], ...images, images[0]]
+    : images;
+
+  const goToIndex = useCallback(
+    (nextIndex: number) => {
+      if (isTransitioning) {
+        return;
+      }
+
+      const nextActiveIndex = normalizeIndex(nextIndex, imageCount);
+
+      if (nextActiveIndex === activeIndex) {
+        return;
+      }
+
+      setActiveIndex(nextActiveIndex);
+      setIsTransitioning(canLoop);
+      setTrackIndex(getTrackIndex(nextActiveIndex, imageCount));
+    },
+    [activeIndex, canLoop, imageCount, isTransitioning],
+  );
 
   const goToPrevious = useCallback(() => {
-    setIndex((currentIndex) =>
-      clampIndex(clampIndex(currentIndex, images.length) - 1, images.length),
-    );
-  }, [images.length]);
-
-  const goToNext = useCallback(() => {
-    setIndex((currentIndex) =>
-      clampIndex(clampIndex(currentIndex, images.length) + 1, images.length),
-    );
-  }, [images.length]);
-
-  useEffect(() => {
-    const container = containerRef.current;
-
-    if (!container) {
+    if (!canLoop || isTransitioning) {
       return;
     }
 
-    const updateContainerWidth = () => {
-      setContainerWidth(container.offsetWidth);
-    };
+    setActiveIndex(normalizeIndex(activeIndex - 1, imageCount));
+    setIsTransitioning(true);
+    setTrackIndex(activeIndex === 0 ? 0 : activeIndex);
+  }, [activeIndex, canLoop, imageCount, isTransitioning]);
 
-    updateContainerWidth();
+  const goToNext = useCallback(() => {
+    if (!canLoop || isTransitioning) {
+      return;
+    }
 
-    const resizeObserver = new ResizeObserver(updateContainerWidth);
-    resizeObserver.observe(container);
+    setActiveIndex(normalizeIndex(activeIndex + 1, imageCount));
+    setIsTransitioning(true);
+    setTrackIndex(
+      activeIndex === imageCount - 1 ? imageCount + 1 : activeIndex + 2,
+    );
+  }, [activeIndex, canLoop, imageCount, isTransitioning]);
 
-    return () => resizeObserver.disconnect();
-  }, []);
+  const handleTrackTransitionEnd = useCallback(
+    (event: TransitionEvent<HTMLDivElement>) => {
+      if (
+        event.target !== event.currentTarget ||
+        event.propertyName !== "transform"
+      ) {
+        return;
+      }
 
-  useEffect(() => {
-    const controls = animate(x, -activeIndex * containerWidth, {
-      type: "spring",
-      stiffness: 300,
-      damping: 30,
-    });
+      setIsTransitioning(false);
 
-    return () => controls.stop();
-  }, [activeIndex, containerWidth, x]);
+      if (trackIndex === 0) {
+        setTrackIndex(imageCount);
+      }
+
+      if (trackIndex === imageCount + 1) {
+        setTrackIndex(1);
+      }
+    },
+    [imageCount, trackIndex],
+  );
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -117,31 +145,44 @@ export function FramerCarousel({
           "relative h-full min-h-0 overflow-hidden",
           viewportClassName,
         )}
-        ref={containerRef}
       >
-        <motion.div className="flex h-full" style={{ x }}>
-          {images.map((image, imageIndex) => (
-            <div
-              key={`${image.src}-${imageIndex}`}
-              className="relative h-full w-full shrink-0"
-            >
-              <FadeInImage
-                src={image.src}
-                alt={image.alt ?? ""}
-                fill
-                quality={100}
-                priority={imageIndex === activeIndex}
-                sizes="100vw"
-                className="select-none object-contain"
-                draggable={false}
-              />
-            </div>
-          ))}
-        </motion.div>
+        <div
+          className={cn(
+            "flex h-full",
+            isTransitioning &&
+              "transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)]",
+          )}
+          onTransitionEnd={handleTrackTransitionEnd}
+          style={{ transform: `translate3d(${-trackIndex * 100}%, 0, 0)` }}
+        >
+          {carouselImages.map((image, imageIndex) => {
+            const realImageIndex = canLoop
+              ? normalizeIndex(imageIndex - 1, imageCount)
+              : imageIndex;
+
+            return (
+              <div
+                key={`${image.src}-${imageIndex}`}
+                className="relative h-full w-full shrink-0"
+              >
+                <FadeInImage
+                  src={image.src}
+                  alt={image.alt ?? ""}
+                  fill
+                  quality={100}
+                  priority={realImageIndex === activeIndex}
+                  sizes="100vw"
+                  className="select-none object-contain"
+                  draggable={false}
+                />
+              </div>
+            );
+          })}
+        </div>
 
         <IconButton
           aria-label="Image precedente"
-          disabled={!canGoPrevious}
+          disabled={!canLoop}
           onClick={goToPrevious}
           className="absolute left-3 top-1/2 z-10 -translate-y-1/2 sm:left-6"
         >
@@ -150,7 +191,7 @@ export function FramerCarousel({
 
         <IconButton
           aria-label="Image suivante"
-          disabled={!canGoNext}
+          disabled={!canLoop}
           onClick={goToNext}
           className="absolute right-3 top-1/2 z-10 -translate-y-1/2 sm:right-6"
         >
@@ -164,7 +205,7 @@ export function FramerCarousel({
               type="button"
               aria-label={`Afficher l'image ${imageIndex + 1}`}
               aria-current={imageIndex === activeIndex}
-              onClick={() => setIndex(imageIndex)}
+              onClick={() => goToIndex(imageIndex)}
               className={cn(
                 "h-2 cursor-pointer rounded-full bg-white/45 transition-all",
                 imageIndex === activeIndex ? "w-8 bg-white" : "w-2",
