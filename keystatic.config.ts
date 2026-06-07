@@ -119,6 +119,7 @@ export default config({
               description:
                 "Use Link until dedicated platform icons are available.",
               options: [
+                { label: "Coffee", value: "coffee" },
                 { label: "GitHub", value: "github" },
                 { label: "LinkedIn", value: "linkedin" },
                 { label: "Malt", value: "malt" },

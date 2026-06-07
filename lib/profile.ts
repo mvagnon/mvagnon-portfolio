@@ -4,7 +4,13 @@ import keystaticConfig from "@/keystatic.config";
 
 const reader = createReader(process.cwd(), keystaticConfig);
 
-const profileLinkIcons = ["github", "linkedin", "malt", "link"] as const;
+const profileLinkIcons = [
+  "coffee",
+  "github",
+  "linkedin",
+  "malt",
+  "link",
+] as const;
 
 export type ProfileLinkIcon = (typeof profileLinkIcons)[number];
 
