@@ -174,7 +174,7 @@ function ProfileLinkIcon({ icon }: { icon: ProfileLink["icon"] }) {
   if (icon === "coffee") {
     return (
       <svg
-        className="size-5.5 transition"
+        className="size-5.5"
         viewBox="0 0 512 512"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -191,34 +191,32 @@ function ProfileLinkIcon({ icon }: { icon: ProfileLink["icon"] }) {
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <path
-          d="M136 220L158 420C164 470 185 489 230 490H293C340 489 361 470 367 420L392 220"
-          stroke="currentColor"
-          strokeWidth="31"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M112 110H382C405 110 421 122 424 145L426 155C428 174 416 187 397 189H111C88 189 77 176 82 154L88 128C91 116 98 110 112 110Z"
-          stroke="currentColor"
-          strokeWidth="31"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M135 43C151 22 196 13 269 14C340 15 378 25 385 50C390 69 384 84 387 99C391 116 405 116 418 116"
-          stroke="currentColor"
-          strokeWidth="31"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M181 39C207 33 279 32 324 38"
-          stroke="currentColor"
-          strokeWidth="31"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        <g className="stroke-zinc-950 transition-colors group-hover:stroke-white">
+          <path
+            d="M136 220L158 420C164 470 185 489 230 490H293C340 489 361 470 367 420L392 220"
+            strokeWidth="31"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M112 110H382C405 110 421 122 424 145L426 155C428 174 416 187 397 189H111C88 189 77 176 82 154L88 128C91 116 98 110 112 110Z"
+            strokeWidth="31"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M135 43C151 22 196 13 269 14C340 15 378 25 385 50C390 69 384 84 387 99C391 116 405 116 418 116"
+            strokeWidth="31"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M181 39C207 33 279 32 324 38"
+            strokeWidth="31"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </g>
       </svg>
     );
   }
@@ -243,21 +241,6 @@ function ProfileLinkIcon({ icon }: { icon: ProfileLink["icon"] }) {
       <Image
         src="/linkedin.svg"
         alt="LinkedIn Icon"
-        width={22}
-        height={22}
-        unoptimized
-        aria-hidden="true"
-        draggable={false}
-        className="size-5.5 transition group-hover:invert"
-      />
-    );
-  }
-
-  if (icon === "malt") {
-    return (
-      <Image
-        src="/malt.svg"
-        alt="Malt Icon"
         width={22}
         height={22}
         unoptimized

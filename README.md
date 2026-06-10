@@ -25,6 +25,6 @@ Project entries include a required title, an optional client, an optional date w
 
 The project gallery uses Keystatic's built-in array of image fields and stores uploaded files in `public/images/projects/<project-slug>/images`.
 
-Profile content is configured in the `profile` singleton. It lives in `content/profile/matthieu-vagnon.yaml` and controls the page title, description, optional featured URL, and icon buttons rendered on `/`. Profile link icons can use `coffee`, `github`, `linkedin`, `malt`, or `link`. The featured URL is rendered only when both `url` and `titleUrl` are set.
+Profile content is configured in the `profile` singleton. It lives in `content/profile/matthieu-vagnon.yaml` and controls the page title, description, optional featured URL, and icon buttons rendered on `/`. Profile link icons can use `coffee`, `github`, `linkedin`, or `link`. The featured URL is rendered only when both `url` and `titleUrl` are set.
 
 The project index is available at `/` and renders the animated hover list with profile content. Project detail pages are available at `/:id` and render the project title, optional client, and images in the 3D gallery.

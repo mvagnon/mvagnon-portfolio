@@ -8,7 +8,6 @@ const profileLinkIcons = [
   "coffee",
   "github",
   "linkedin",
-  "malt",
   "link",
 ] as const;
 

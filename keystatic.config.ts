@@ -122,7 +122,6 @@ export default config({
                 { label: "Coffee", value: "coffee" },
                 { label: "GitHub", value: "github" },
                 { label: "LinkedIn", value: "linkedin" },
-                { label: "Malt", value: "malt" },
                 { label: "Link", value: "link" },
               ],
               defaultValue: "link",
