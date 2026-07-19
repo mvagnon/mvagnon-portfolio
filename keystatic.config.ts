@@ -100,14 +100,6 @@ export default config({
                 isRequired: true,
               },
             }),
-            order: fields.integer({
-              label: "Display order",
-              defaultValue: 1,
-              validation: {
-                isRequired: true,
-                min: 1,
-              },
-            }),
             url: fields.url({
               label: "URL",
               validation: {

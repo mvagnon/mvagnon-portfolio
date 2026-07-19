@@ -7,15 +7,12 @@ url: >-
 titleUrl: WORK TOGETHER 🤝
 links:
   - title: Coffee
-    order: 1
     url: https://buymeacoffee.com/mvagnon
     icon: coffee
   - title: GitHub
-    order: 2
     url: https://github.com/mvagnon
     icon: github
   - title: LinkedIn
-    order: 3
     url: https://fr.linkedin.com/in/matthieu-vagnon
     icon: linkedin
   - title: Resume

@@ -16,7 +16,6 @@ export type ProfileLinkIcon = (typeof profileLinkIcons)[number];
 export type ProfileLink = {
   id: string;
   title: string;
-  order: number;
   url: string;
   icon: ProfileLinkIcon;
 };
@@ -46,19 +45,12 @@ export async function getProfile(): Promise<Profile> {
     description: profile.description,
     url: normalizeOptionalUrl(profile.url),
     titleUrl: normalizeOptionalText(profile.titleUrl),
-    links: profile.links
-      .map((link) => ({
-        id: toProfileLinkId(link.title),
-        title: link.title,
-        order: link.order,
-        url: link.url,
-        icon: normalizeProfileLinkIcon(link.icon),
-      }))
-      .toSorted(
-        (a, b) =>
-          a.order - b.order ||
-          a.title.localeCompare(b.title, "fr", { sensitivity: "base" }),
-      ),
+    links: profile.links.map((link) => ({
+      id: toProfileLinkId(link.title),
+      title: link.title,
+      url: link.url,
+      icon: normalizeProfileLinkIcon(link.icon),
+    })),
   };
 }
 
