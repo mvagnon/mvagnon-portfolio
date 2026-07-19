@@ -18,3 +18,8 @@ links:
     order: 3
     url: https://fr.linkedin.com/in/matthieu-vagnon
     icon: linkedin
+  - title: Resume
+    order: 4
+    url: >-
+      https://ambitious-iodine-3a2.notion.site/Matthieu-Vagnon-36cbf45db5598196b6fbf0d041e7d9eb?source=copy_link
+    icon: link
