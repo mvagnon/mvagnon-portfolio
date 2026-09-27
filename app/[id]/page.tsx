@@ -66,20 +66,14 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       className="relative min-h-screen h-full w-full overflow-hidden bg-zinc-950 text-white"
       style={{ backgroundColor: project.color }}
     >
-      {project.images.length > 0 ? (
-        <ProjectGallery
-          images={project.images}
-          speed={1.2}
-          zSpacing={3}
-          visibleCount={12}
-          falloff={{ near: 0.8, far: 14 }}
-          className="h-screen w-full overflow-hidden"
-        />
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center bg-zinc-950 px-6 text-center text-sm text-zinc-400">
-          Aucune image configuree pour ce projet.
-        </div>
-      )}
+      <ProjectGallery
+        images={[project.coverImage, ...project.images]}
+        speed={1.2}
+        zSpacing={3}
+        visibleCount={12}
+        falloff={{ near: 0.8, far: 14 }}
+        className="h-screen w-full overflow-hidden"
+      />
 
       <header className="pointer-events-none fixed inset-x-0 top-0 z-10 flex items-center justify-between px-5 py-6 sm:px-8 sm:py-8 lg:px-12">
         <IconButton
