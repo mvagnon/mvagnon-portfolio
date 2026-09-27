@@ -58,9 +58,6 @@ export default config({
           }),
           {
             label: "Images",
-            validation: {
-              length: { min: 1 },
-            },
           },
         ),
       },
