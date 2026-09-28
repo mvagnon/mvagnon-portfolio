@@ -101,18 +101,33 @@ describe("keystatic config", () => {
     expect(colorField.parse("#412D15")).toEqual({ value: "#412D15" });
   });
 
-  test("uses built-in image fields for project gallery images", () => {
+  test("uses asset fields for an optional image and video gallery", () => {
     const imagesField = keystaticConfig.collections.projects.schema.images;
 
     expect(imagesField.kind).toBe("array");
-    expect(imagesField.label).toBe("Images");
-    expect(imagesField.validation).toEqual({
-      length: { min: 1 },
-    });
+    expect(imagesField.label).toBe("Images and videos");
+    expect(imagesField.validation?.length?.min ?? 0).toBe(0);
 
     expect(imagesField.element.kind).toBe("form");
     expect(imagesField.element.formKind).toBe("asset");
-    expect(imagesField.element.label).toBe("Image");
+    expect(imagesField.element.label).toBe("Image or video");
     expect(imagesField.element.directory).toBe("public/images/projects");
+  });
+
+  test("preserves image and video paths when reading and saving project media", () => {
+    const { coverImage, images } = keystaticConfig.collections.projects.schema;
+
+    for (const field of [coverImage, images.element]) {
+      expect(() => field.validate(null)).toThrow();
+
+      for (const extension of ["png", "gif", "mp4", "webm"]) {
+        const path = `/images/projects/example/cover.${extension}`;
+        const args = { slug: "example", asset: new Uint8Array([1, 2, 3]) };
+        const parsed = field.parse(path, args);
+
+        expect(field.reader.parse(path)).toBe(path);
+        expect(field.serialize(field.validate(parsed), args).value).toBe(path);
+      }
+    }
   });
 });

@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState, type TransitionEvent } from "react";
 
-import { FadeInImage } from "@/components/ui/fade-in-image";
+import { FadeInMedia } from "@/components/ui/fade-in-media";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
 
@@ -165,7 +165,7 @@ export function FramerCarousel({
                 key={`${image.src}-${imageIndex}`}
                 className="relative h-full w-full shrink-0"
               >
-                <FadeInImage
+                <FadeInMedia
                   src={image.src}
                   alt={image.alt ?? ""}
                   fill

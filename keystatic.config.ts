@@ -35,8 +35,9 @@ export default config({
         createdAt: fields.ignored(),
         order: fields.ignored(),
         color: fields.ignored(),
-        coverImage: fields.image({
-          label: "Cover image",
+        coverImage: fields.file({
+          label: "Cover image or video",
+          description: "Image or video (MP4 or WebM recommended).",
           directory: "public/images/projects",
           publicPath: "/images/projects/",
           validation: { isRequired: true },
@@ -50,14 +51,15 @@ export default config({
           description: "Optional live project URL.",
         }),
         images: fields.array(
-          fields.image({
-            label: "Image",
+          fields.file({
+            label: "Image or video",
+            description: "Image or video (MP4 or WebM recommended).",
             directory: "public/images/projects",
             publicPath: "/images/projects/",
             validation: { isRequired: true },
           }),
           {
-            label: "Images",
+            label: "Images and videos",
           },
         ),
       },

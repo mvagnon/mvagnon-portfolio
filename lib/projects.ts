@@ -70,7 +70,7 @@ async function readProjectEntry(id: string): Promise<ProjectEntry | null> {
     github: normalizeOptionalUrl(project.github),
     url: normalizeOptionalUrl(project.url),
     images: project.images
-      .filter(isImagePath)
+      .filter(isMediaPath)
       .map((src, index) => ({
         src,
         alt: `${project.title} ${index + 1}`,
@@ -130,8 +130,8 @@ function normalizeOptionalText(text: string | null): string | undefined {
   return value.length > 0 ? value : undefined;
 }
 
-function isImagePath(image: string | null): image is string {
-  return typeof image === "string" && image.length > 0;
+function isMediaPath(src: string | null): src is string {
+  return typeof src === "string" && src.length > 0;
 }
 
 function isProjectEntry(

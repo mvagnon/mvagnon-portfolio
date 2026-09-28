@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import type { ProfileLink, ProfileUrl } from "@/lib/profile";
 import type { Project } from "@/lib/projects";
 import { ArrowTextLink } from "@/components/ui/arrow-text-link";
-import { FadeInImage } from "@/components/ui/fade-in-image";
+import { FadeInMedia } from "@/components/ui/fade-in-media";
 import { IconButton } from "@/components/ui/icon-button";
 import { ViewHoverCursor } from "@/components/ui/view-hover-cursor";
 
@@ -272,7 +272,7 @@ function ProjectRow({
       <div className="flex min-w-0 items-center gap-4">
         {previewImage ? (
           <span className="relative size-16 shrink-0 overflow-hidden bg-zinc-200 md:hidden">
-            <FadeInImage
+            <FadeInMedia
               src={previewImage.src}
               alt=""
               fill
@@ -378,7 +378,7 @@ function HoverModal({
                 }}
               >
                 {project.kind === "github" ? null : previewImage ? (
-                  <FadeInImage
+                  <FadeInMedia
                     src={previewImage.src}
                     alt={previewImage.alt}
                     width={320}
